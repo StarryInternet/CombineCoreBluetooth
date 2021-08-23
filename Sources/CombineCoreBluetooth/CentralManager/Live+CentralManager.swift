@@ -13,6 +13,12 @@ extension CentralManager {
       delegate: delegate,
       queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global())
     )
+    
+    #if os(macOS) && !targetEnvironment(macCatalyst)
+    func supportsFeatures<A>(_ feature: Never) -> A {}
+    #else
+    let supportsFeatures = CBCentralManager.supports
+    #endif
 
     return Self.init(
       delegate: delegate,
@@ -25,13 +31,7 @@ extension CentralManager {
         }
       },
       _isScanning: { centralManager.isScanning },
-      _supportsFeatures: {
-        #if os(macOS)
-        fatalError("This method is not callable on native macOS")
-        #else
-        return CBCentralManager.supports($0)
-        #endif
-      },
+      _supportsFeatures: supportsFeatures,
       _retrievePeripheralsWithIdentifiers: { (identifiers, manager) -> [Peripheral] in
         centralManager.retrievePeripherals(withIdentifiers: identifiers).map(Peripheral.init(cbperipheral:))
       },

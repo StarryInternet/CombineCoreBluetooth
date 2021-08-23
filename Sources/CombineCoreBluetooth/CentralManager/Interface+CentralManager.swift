@@ -3,6 +3,12 @@ import CoreBluetooth
 import Foundation
 
 public struct CentralManager {
+  #if os(macOS) && !targetEnvironment(macCatalyst)
+  public typealias Feature = Never
+  #else
+  public typealias Feature = CBCentralManager.Feature
+  #endif
+
   let delegate: Delegate?
 
   let _state: () -> CBManagerState
@@ -10,7 +16,7 @@ public struct CentralManager {
   let _isScanning: () -> Bool
 
   @available(macOS, unavailable)
-  let _supportsFeatures: (_ feature: CBCentralManager.Feature) -> Bool
+  let _supportsFeatures: (_ feature: Feature) -> Bool
 
   let _retrievePeripheralsWithIdentifiers: ([UUID], CentralManager) -> [Peripheral]
   let _retrieveConnectedPeripheralsWithServices: ([CBUUID], CentralManager) -> [Peripheral]
@@ -46,8 +52,12 @@ public struct CentralManager {
   }
 
   @available(macOS, unavailable)
-  public func supports(_ features: CBCentralManager.Feature) -> Bool {
+  public func supports(_ features: Feature) -> Bool {
+    #if os(macOS) && !targetEnvironment(macCatalyst)
+    // do nothing
+    #else
     _supportsFeatures(features)
+    #endif
   }
 
   public func retrievePeripherals(withIdentifiers identifiers: [UUID]) -> [Peripheral] {

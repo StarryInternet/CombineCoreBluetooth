@@ -7,7 +7,7 @@ extension CentralManager {
     state: @escaping () -> CBManagerState = Internal._unimplemented("state"),
     authorization: @escaping () -> CBManagerAuthorization = Internal._unimplemented("authorization"),
     isScanning: @escaping () -> Bool = Internal._unimplemented("isScanning"),
-    supportsFeatures: @escaping (CBCentralManager.Feature) -> Bool = Internal._unimplemented("supportsFeatures"),
+    supportsFeatures: @escaping (Feature) -> Bool = Internal._unimplemented("supportsFeatures"),
     retrievePeripheralsWithIdentifiers: @escaping ([UUID], CentralManager) -> [Peripheral] = Internal._unimplemented("retrievePeripheralsWithIdentifiers"),
     retrieveConnectedPeripheralsWithServices: @escaping ([CBUUID], CentralManager) -> [Peripheral] = Internal._unimplemented("retrieveConnectedPeripheralsWithServices"),
     scanForPeripheralsWithServices: @escaping ([CBUUID]?, [String : Any]?) -> Void = Internal._unimplemented("scanForPeripheralsWithServices"),
