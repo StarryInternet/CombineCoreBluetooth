@@ -8,8 +8,8 @@ CombineCoreBluetooth is a library that bridges Apple's `CoreBluetooth` framework
 ## Requirements:
 
 * iOS 13, tvOS 13, macOS 10.15, or watchOS 6
-* Xcode 11 or higher
-* Swift 5.1 or higher
+* Xcode 12 or higher
+* Swift 5.3 or higher
 
 ## Usage
 
