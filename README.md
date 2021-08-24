@@ -1,5 +1,8 @@
 # CombineCoreBluetooth
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FStarryInternet%2FCombineCoreBluetooth%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/StarryInternet/CombineCoreBluetooth)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FStarryInternet%2FCombineCoreBluetooth%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/StarryInternet/CombineCoreBluetooth)
+
 CombineCoreBluetooth is a library that bridges Apple's `CoreBluetooth` framework and Apple's `Combine` framework, making it possible to subscribe to perform bluetooth operations while subscribing to a publisher of the results of those operations, instead of relying on implementing delegates and manually filtering for the results you need.
 
 ## Requirements:
