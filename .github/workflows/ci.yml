@@ -6,11 +6,13 @@ on:
     paths:
       - '**.swift'
       - '**.podspec'
+      - '.github/workflows/*'
   pull_request:
     branches: [ master ]
     paths:
       - '**.swift'
       - '**.podspec'
+      - '.github/workflows/*'
 
 jobs:
   build-mac:
