@@ -7,18 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  validate-pod:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7
-    - name: Install cocoapods
-      run: gem install cocoapods
-    - name: Pod lint
-      run: pod lib lint --quick --allow-warnings
-
   build-mac:
     runs-on: macos-latest
     steps:
@@ -27,20 +15,15 @@ jobs:
       run: swift build
     - name: Run tests
       run: swift test
+    - name: Pod lint
+      run: pod lib lint --quick
+
   
   build-ios:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - run: swift --version
-    - run: xcodebuild -version
     - name: Build
-      run: |
-        swift build -Xswiftc "-sdk" \
-         -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
-         -Xswiftc "-target" \
-         -Xswiftc "x86_64-apple-ios`xcrun --show-sdk-version --sdk iphonesimulator`-simulator"
-    - name: Run Tests
       run: |
         swift build -Xswiftc "-sdk" \
          -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
