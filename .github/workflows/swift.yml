@@ -7,13 +7,25 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  build-mac:
     runs-on: macos-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: swift build
     - name: Run tests
       run: swift test
+    - name: Pod lint
+      run: pod lib lint --quick
+
+  
+  build-ios:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        swift build -Xswiftc "-sdk" \
+         -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
+         -Xswiftc "-target" \
+         -Xswiftc "x86_64-apple-ios`xcrun --show-sdk-version --sdk iphonesimulator`-simulator"

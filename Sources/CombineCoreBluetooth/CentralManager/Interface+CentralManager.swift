@@ -56,7 +56,7 @@ public struct CentralManager {
     #if os(macOS) && !targetEnvironment(macCatalyst)
     // do nothing
     #else
-    _supportsFeatures(features)
+    return _supportsFeatures(features)
     #endif
   }
 
