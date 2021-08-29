@@ -3,8 +3,14 @@ name: CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.swift'
+      - '**.podspec'
   pull_request:
     branches: [ master ]
+    paths:
+      - '**.swift'
+      - '**.podspec'
 
 jobs:
   build-mac:
