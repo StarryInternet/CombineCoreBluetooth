@@ -94,12 +94,8 @@ extension CentralManager {
 extension CentralManager.CreationOptions {
   var dictionary: [String: Any] {
     var dict: [String: Any] = [:]
-    if let showPowerAlert = showPowerAlert {
-      dict[CBCentralManagerOptionShowPowerAlertKey] = showPowerAlert
-    }
-    if let restoreIdentifierKey = restoreIdentifierKey {
-      dict[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifierKey
-    }
+    dict[CBCentralManagerOptionShowPowerAlertKey] = showPowerAlert
+    dict[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifierKey
     return dict
   }
 }
@@ -107,12 +103,8 @@ extension CentralManager.CreationOptions {
 extension CentralManager.ScanOptions {
   var dictionary: [String: Any] {
     var dict: [String: Any] = [:]
-    if let allowDuplicates = allowDuplicates {
-      dict[CBCentralManagerScanOptionAllowDuplicatesKey] = allowDuplicates
-    }
-    if let solicitedServiceUUIDs = solicitedServiceUUIDs {
-      dict[CBCentralManagerScanOptionSolicitedServiceUUIDsKey] = solicitedServiceUUIDs
-    }
+    dict[CBCentralManagerScanOptionAllowDuplicatesKey] = allowDuplicates
+    dict[CBCentralManagerScanOptionSolicitedServiceUUIDsKey] = solicitedServiceUUIDs
     return dict
   }
 }
@@ -120,18 +112,10 @@ extension CentralManager.ScanOptions {
 extension CentralManager.PeripheralConnectionOptions {
   var dictionary: [String: Any] {
     var dict: [String: Any] = [:]
-    if let notifyOnConnection = notifyOnConnection {
-      dict[CBConnectPeripheralOptionNotifyOnConnectionKey] = notifyOnConnection
-    }
-    if let notifyOnDisconnection = notifyOnDisconnection {
-      dict[CBConnectPeripheralOptionNotifyOnDisconnectionKey] = notifyOnDisconnection
-    }
-    if let notifyOnNotification = notifyOnNotification {
-      dict[CBConnectPeripheralOptionNotifyOnNotificationKey] = notifyOnNotification
-    }
-    if let startDelay = startDelay {
-      dict[CBConnectPeripheralOptionStartDelayKey] = startDelay
-    }
+    dict[CBConnectPeripheralOptionNotifyOnConnectionKey] = notifyOnConnection
+    dict[CBConnectPeripheralOptionNotifyOnDisconnectionKey] = notifyOnDisconnection
+    dict[CBConnectPeripheralOptionNotifyOnNotificationKey] = notifyOnNotification
+    dict[CBConnectPeripheralOptionStartDelayKey] = startDelay
     return dict
   }
 }
