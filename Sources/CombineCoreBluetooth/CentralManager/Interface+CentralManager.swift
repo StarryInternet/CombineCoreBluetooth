@@ -94,6 +94,11 @@ public struct CentralManager {
     public var showPowerAlert: Bool?
     /// A unique identifier for the Central Manager that's being instantiated. This identifier is used by the system to identify a specific  CBCentralManager  instance for restoration and, therefore, must remain the same for subsequent application executions in order for the manager to be restored.
     public var restoreIdentifierKey: String?
+
+    public init(showPowerAlert: Bool? = nil, restoreIdentifierKey: String? = nil) {
+      self.showPowerAlert = showPowerAlert
+      self.restoreIdentifierKey = restoreIdentifierKey
+    }
   }
 
   /// Options used when scanning for peripherals.
@@ -102,6 +107,11 @@ public struct CentralManager {
     public var allowDuplicates: Bool?
     /// Causes the scan to also look for peripherals soliciting any of the services contained in the list.
     public var solicitedServiceUUIDs: [CBUUID]?
+
+    public init(allowDuplicates: Bool? = nil, solicitedServiceUUIDs: [CBUUID]? = nil) {
+      self.allowDuplicates = allowDuplicates
+      self.solicitedServiceUUIDs = solicitedServiceUUIDs
+    }
   }
 
   /// Options used when connecting to a given `Peripheral`
@@ -114,5 +124,12 @@ public struct CentralManager {
     public var notifyOnNotification: Bool?
     /// The number of seconds for the system to wait before starting a connection.
     public var startDelay: TimeInterval?
+
+    public init(notifyOnConnection: Bool? = nil, notifyOnDisconnection: Bool? = nil, notifyOnNotification: Bool? = nil, startDelay: TimeInterval? = nil) {
+      self.notifyOnConnection = notifyOnConnection
+      self.notifyOnDisconnection = notifyOnDisconnection
+      self.notifyOnNotification = notifyOnNotification
+      self.startDelay = startDelay
+    }
   }
 }
