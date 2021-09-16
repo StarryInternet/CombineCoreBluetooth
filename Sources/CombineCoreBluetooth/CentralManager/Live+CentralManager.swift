@@ -7,11 +7,12 @@ enum CentralManagerError: Error, Equatable {
 }
 
 extension CentralManager {
-  public static var live: Self {
+  public static func live(_ options: CreationOptions? = nil) -> Self {
     let delegate = Delegate()
     let centralManager = CBCentralManager(
       delegate: delegate,
-      queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global())
+      queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global()),
+      options: options?.dictionary
     )
     
     #if os(macOS) && !targetEnvironment(macCatalyst)
@@ -21,7 +22,6 @@ extension CentralManager {
     #endif
 
     return Self.init(
-      delegate: delegate,
       _state: { centralManager.state },
       _authorization: {
         if #available(iOS 13.1, *) {
@@ -32,39 +32,47 @@ extension CentralManager {
       },
       _isScanning: { centralManager.isScanning },
       _supportsFeatures: supportsFeatures,
-      _retrievePeripheralsWithIdentifiers: { (identifiers, manager) -> [Peripheral] in
+      _retrievePeripheralsWithIdentifiers: { (identifiers) -> [Peripheral] in
         centralManager.retrievePeripherals(withIdentifiers: identifiers).map(Peripheral.init(cbperipheral:))
       },
-      _retrieveConnectedPeripheralsWithServices: { (serviceIDs, manager) -> [Peripheral] in
+      _retrieveConnectedPeripheralsWithServices: { (serviceIDs) -> [Peripheral] in
         centralManager.retrieveConnectedPeripherals(withServices: serviceIDs).map(Peripheral.init(cbperipheral:))
       },
-      _scanForPeripheralsWithServices: centralManager.scanForPeripherals(withServices:options:),
-      _stopScanForPeripherals: centralManager.stopScan,
+      _scanForPeripheralsWithServices: { services, options in
+        delegate.didDiscoverPeripheral
+          .handleEvents(receiveSubscription: { _ in
+            centralManager.scanForPeripherals(withServices: services, options: options?.dictionary)
+          }, receiveCancel: {
+            centralManager.stopScan()
+          })
+          .shareCurrentValue()
+          .eraseToAnyPublisher()
+      },
       _connectToPeripheral: { (peripheral, options) in
         Publishers.Merge(
           delegate.didConnectPeripheral
-            .filter({ $0 == peripheral })
+            .filter { $0 == peripheral }
             .setFailureType(to: Error.self),
           delegate.didFailToConnectPeripheral
-            .filter({ p, _ in p == peripheral })
-            .tryMap({ p, error in
+            .filter { p, _ in p == peripheral }
+            .tryMap { p, error in
               throw CentralManagerError.failedToConnect(p, error as NSError?)
-            })
+            }
         )
         .prefix(1)
         .handleEvents(receiveSubscription: { _ in
-          centralManager.connect(peripheral.rawValue!, options: options)
+          centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
         }, receiveCancel: {
           centralManager.cancelPeripheralConnection(peripheral.rawValue!)
         })
-        .share()
+        .shareCurrentValue()
         .eraseToAnyPublisher()
       },
       _cancelPeripheralConnection: { (peripheral) in
         centralManager.cancelPeripheralConnection(peripheral.rawValue!)
       },
       _registerForConnectionEvents: {
-        #if os(macOS)
+        #if os(macOS) && !targetEnvironment(macCatalyst)
         fatalError("This method is not callable on native macOS")
         #else
         centralManager.registerForConnectionEvents(options: $0)
@@ -80,6 +88,51 @@ extension CentralManager {
       didDiscoverPeripheral: delegate.didDiscoverPeripheral,
       didUpdateACNSAuthorizationForPeripheral: delegate.didUpdateACNSAuthorizationForPeripheral
     )
+  }
+}
+
+extension CentralManager.CreationOptions {
+  var dictionary: [String: Any] {
+    var dict: [String: Any] = [:]
+    if let showPowerAlert = showPowerAlert {
+      dict[CBCentralManagerOptionShowPowerAlertKey] = showPowerAlert
+    }
+    if let restoreIdentifierKey = restoreIdentifierKey {
+      dict[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifierKey
+    }
+    return dict
+  }
+}
+
+extension CentralManager.ScanOptions {
+  var dictionary: [String: Any] {
+    var dict: [String: Any] = [:]
+    if let allowDuplicates = allowDuplicates {
+      dict[CBCentralManagerScanOptionAllowDuplicatesKey] = allowDuplicates
+    }
+    if let solicitedServiceUUIDs = solicitedServiceUUIDs {
+      dict[CBCentralManagerScanOptionSolicitedServiceUUIDsKey] = solicitedServiceUUIDs
+    }
+    return dict
+  }
+}
+
+extension CentralManager.PeripheralConnectionOptions {
+  var dictionary: [String: Any] {
+    var dict: [String: Any] = [:]
+    if let notifyOnConnection = notifyOnConnection {
+      dict[CBConnectPeripheralOptionNotifyOnConnectionKey] = notifyOnConnection
+    }
+    if let notifyOnDisconnection = notifyOnDisconnection {
+      dict[CBConnectPeripheralOptionNotifyOnDisconnectionKey] = notifyOnDisconnection
+    }
+    if let notifyOnNotification = notifyOnNotification {
+      dict[CBConnectPeripheralOptionNotifyOnNotificationKey] = notifyOnNotification
+    }
+    if let startDelay = startDelay {
+      dict[CBConnectPeripheralOptionStartDelayKey] = startDelay
+    }
+    return dict
   }
 }
 
