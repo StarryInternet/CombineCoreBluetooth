@@ -172,9 +172,13 @@ extension CentralManager {
 
     @PassthroughBacked var didDiscoverPeripheral: AnyPublisher<PeripheralDiscovery, Never>
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-      _didDiscoverPeripheral.send(PeripheralDiscovery(peripheral: Peripheral(cbperipheral: peripheral),
-                                                      advertisementData: AdvertisementData(advertisementData),
-                                                      rssi: RSSI.doubleValue))
+      _didDiscoverPeripheral.send(
+        PeripheralDiscovery(
+          peripheral: Peripheral(cbperipheral: peripheral),
+          advertisementData: AdvertisementData(advertisementData),
+          rssi: RSSI.doubleValue
+        )
+      )
     }
 
     @PassthroughBacked var didUpdateACNSAuthorizationForPeripheral: AnyPublisher<Peripheral, Never>

@@ -42,4 +42,19 @@ extension Peripheral {
       })
       .eraseToAnyPublisher()
   }
+
+
+  /// Reads the value in the characteristic with the given UUID from the service with the given UUID.
+  /// - Parameters:
+  ///   - characteristicUUID: The UUID of the characteristic to read from.
+  ///   - serviceUUID: The UUID of the service the characteristic is a part of.
+  /// - Returns: A publisher that sends the value that is read from the desired characteristic.
+  public func readValue(forCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Data?, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .flatMap { characteristic in
+        self.readValue(for: characteristic)
+      }
+      .map(\.value)
+      .eraseToAnyPublisher()
+  }
 }

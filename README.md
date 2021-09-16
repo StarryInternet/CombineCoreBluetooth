@@ -23,12 +23,10 @@ let serviceID = CBUUID(string: "0123")
 let characteristicID = CBUUID(string: "4567")
 
 peripheral
-  .discoverCharacteristic(withUUID: characteristicID, inServiceWithUUID: serviceID)
-  .flatMap { characteristic in
-    peripheral.fetchValue(for: characteristic)
-  }
-  .map(\.value)
-  .sink(receiveCompletion: { completion in /* ... */ }, receiveValue: { data in
+  .readValue(forCharacteristic: characteristicID, inService: serviceID)
+  .sink(receiveCompletion: { completion in
+    // handle any potential errors here
+  }, receiveValue: { data in
    // handle data from characteristic here, or add more publisher methods to map and transform it.
   })
   .store(in: &cancellables)
