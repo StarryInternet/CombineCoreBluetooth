@@ -26,7 +26,7 @@ jobs:
       - name: Pod lint
         run: pod lib lint --quick
       - name: Verify Carthage
-        run: carthage build --no-skip-current --use-xcframeworks --platform macOS
+        run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
   build-ios:
     runs-on: macos-latest
