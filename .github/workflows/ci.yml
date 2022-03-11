@@ -2,38 +2,39 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - '**.swift'
-      - '**.podspec'
-      - '.github/workflows/*'
+      - "**.swift"
+      - "**.podspec"
+      - ".github/workflows/*"
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - '**.swift'
-      - '**.podspec'
-      - '.github/workflows/*'
+      - "**.swift"
+      - "**.podspec"
+      - ".github/workflows/*"
 
 jobs:
   build-mac:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: swift build
-    - name: Run tests
-      run: swift test
-    - name: Pod lint
-      run: pod lib lint --quick
+      - uses: actions/checkout@v2
+      - name: Build
+        run: swift build
+      - name: Run tests
+        run: swift test
+      - name: Pod lint
+        run: pod lib lint --quick
+      - name: Verify Carthage
+        run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
-  
   build-ios:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: |
-        swift build -Xswiftc "-sdk" \
-         -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
-         -Xswiftc "-target" \
-         -Xswiftc "x86_64-apple-ios`xcrun --show-sdk-version --sdk iphonesimulator`-simulator"
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          swift build -Xswiftc "-sdk" \
+           -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
+           -Xswiftc "-target" \
+           -Xswiftc "x86_64-apple-ios`xcrun --show-sdk-version --sdk iphonesimulator`-simulator"

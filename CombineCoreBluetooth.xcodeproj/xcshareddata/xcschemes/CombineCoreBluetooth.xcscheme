@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EB44404B27C6C3610005CCEA"
-               BuildableName = "CombineCoreBluetooth macOS.framework"
-               BlueprintName = "CombineCoreBluetooth macOS"
+               BlueprintIdentifier = "EB443F8D27C6BCA70005CCEA"
+               BuildableName = "CombineCoreBluetooth.framework"
+               BlueprintName = "CombineCoreBluetooth"
                ReferencedContainer = "container:CombineCoreBluetooth.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EB44406B27C6C3A90005CCEA"
-               BuildableName = "CombineCoreBluetooth macOS Tests.xctest"
-               BlueprintName = "CombineCoreBluetooth macOS Tests"
+               BlueprintIdentifier = "EB443FD827C6C1940005CCEA"
+               BuildableName = "CombineCoreBluetooth Tests.xctest"
+               BlueprintName = "CombineCoreBluetooth Tests"
                ReferencedContainer = "container:CombineCoreBluetooth.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EB44404B27C6C3610005CCEA"
-            BuildableName = "CombineCoreBluetooth macOS.framework"
-            BlueprintName = "CombineCoreBluetooth macOS"
+            BlueprintIdentifier = "EB443F8D27C6BCA70005CCEA"
+            BuildableName = "CombineCoreBluetooth.framework"
+            BlueprintName = "CombineCoreBluetooth"
             ReferencedContainer = "container:CombineCoreBluetooth.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
