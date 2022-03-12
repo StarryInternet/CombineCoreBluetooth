@@ -14,15 +14,15 @@ extension Peripheral {
   public func discoverCharacteristics(withUUIDs characteristicUUIDs: [CBUUID], inServiceWithUUID serviceUUID: CBUUID) -> AnyPublisher<[CBCharacteristic], Error> {
     discoverServices([serviceUUID])
       // discover all the characteristics we need
-      .flatMap({ (services) -> AnyPublisher<[CBCharacteristic], Error> in
+      .flatMap { (services) -> AnyPublisher<[CBCharacteristic], Error> in
         // safe to force unwrap, since `discoverServices` guarantees that if you give it a non-nil array, it will only publish a value
         // if the requested services are all present
         guard let service = services.first(where: { $0.uuid == serviceUUID }) else {
           return Fail(error: PeripheralError.serviceNotFound(serviceUUID)).eraseToAnyPublisher()
         }
         return discoverCharacteristics(characteristicUUIDs, for: service)
-      })
-      .prefix(1)
+      }
+      .first()
       .eraseToAnyPublisher()
   }
 
@@ -33,13 +33,13 @@ extension Peripheral {
   /// - Returns: A publisher of the desired characteristic
   public func discoverCharacteristic(withUUID characteristicUUID: CBUUID, inServiceWithUUID serviceUUID: CBUUID) -> AnyPublisher<CBCharacteristic, Error> {
     discoverCharacteristics(withUUIDs: [characteristicUUID], inServiceWithUUID: serviceUUID)
-      .tryMap({ characteristics in
+      .tryMap { characteristics in
         // assume core bluetooth won't send us a characteristic list without the characteristic we expect
         guard let characteristic = characteristics.first(where: { characteristic in characteristic.uuid == characteristicUUID }) else {
           throw PeripheralError.characteristicNotFound(characteristicUUID)
         }
         return characteristic
-      })
+      }
       .eraseToAnyPublisher()
   }
 
