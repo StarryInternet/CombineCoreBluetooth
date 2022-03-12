@@ -134,9 +134,12 @@ extension Peripheral {
 
       _writeValueForCharacteristic: { (value, characteristic, writeType) in
         if writeType == .withoutResponse {
-          // write the value and return an empty complete publisher immediately, as we will never receive a response for this write.
-          cbperipheral.writeValue(value, for: characteristic, type: writeType)
-          return Empty().eraseToAnyPublisher()
+          // Return an empty publisher here, since we never expect to receive a response when writing using a .withoutResponse type.
+          return Empty()
+            .handleEvents(receiveSubscription: { (sub) in
+              cbperipheral.writeValue(value, for: characteristic, type: writeType)
+            })
+            .eraseToAnyPublisher()
         }
 
         return delegate
@@ -161,9 +164,12 @@ extension Peripheral {
       _setNotifyValue: { (enabled, characteristic) in
         if characteristic.properties.contains(.notify) && !characteristic.properties.contains(.indicate) {
           // if the peripheral does not support sending responses for notification changes to this characteristic,
-          //  perform the work and return a publisher that doesn't wait to complete, as it never will if we don't get a response.
-          cbperipheral.setNotifyValue(enabled, for: characteristic)
-          return Empty().eraseToAnyPublisher()
+          // just do it when subscribing to an empty publisher since we won't expect to get a response otherwise.
+          return Empty()
+            .handleEvents(receiveSubscription: { (sub) in
+              cbperipheral.setNotifyValue(enabled, for: characteristic)
+            })
+            .eraseToAnyPublisher()
         }
         return delegate
           .didUpdateNotificationState
