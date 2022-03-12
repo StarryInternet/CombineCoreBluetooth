@@ -153,8 +153,12 @@ extension Peripheral {
       },
 
       _setNotifyValue: { (enabled, characteristic) in
-        // Unlike elsewhere in this file, we fire this off immediately, since we may not care about the response if we're toggling it off.
-        cbperipheral.setNotifyValue(enabled, for: characteristic)
+        if characteristic.properties.contains(.notify) && !characteristic.properties.contains(.indicate) {
+          // if the peripheral does not support sending responses for notification changes to this characteristic,
+          //  perform the work and return a publisher that doesn't wait to complete, as it never will if we don't get a response.
+          cbperipheral.setNotifyValue(enabled, for: characteristic)
+          return Empty().eraseToAnyPublisher()
+        }
         return delegate
           .didUpdateNotificationState
           .filter({ (notifyCharacteristic, error) in
@@ -167,6 +171,9 @@ extension Peripheral {
             return characteristic
           })
           .prefix(1)
+          .handleEvents(receiveSubscription: { (sub) in
+            cbperipheral.setNotifyValue(enabled, for: characteristic)
+          })
           .shareCurrentValue()
           .eraseToAnyPublisher()
       },
