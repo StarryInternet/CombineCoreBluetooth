@@ -133,6 +133,12 @@ extension Peripheral {
       },
 
       _writeValueForCharacteristic: { (value, characteristic, writeType) in
+        if writeType == .withoutResponse {
+          // write the value and return an empty complete publisher immediately, as we will never receive a response for this write.
+          cbperipheral.writeValue(value, for: characteristic, type: writeType)
+          return Empty().eraseToAnyPublisher()
+        }
+
         return delegate
           .didWriteValueForCharacteristic
           .filter({ (writeCharacteristic, error) in
@@ -144,7 +150,7 @@ extension Peripheral {
             }
             return characteristic
           })
-          .prefix(1)
+          .first()
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.writeValue(value, for: characteristic, type: writeType)
           })
