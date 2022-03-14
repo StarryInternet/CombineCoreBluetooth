@@ -147,11 +147,13 @@ extension CentralManager {
       _didDisconnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
     }
 
-    @PassthroughBacked var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never>
     #if os(iOS) || os(tvOS) || os(watchOS)
+    @PassthroughBacked var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never>
     func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
       _connectionEventDidOccur.send((event, Peripheral(cbperipheral: peripheral)))
     }
+    #else
+    var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never> = Empty().eraseToAnyPublisher()
     #endif
 
     @PassthroughBacked var didDiscoverPeripheral: AnyPublisher<PeripheralDiscovery, Never>

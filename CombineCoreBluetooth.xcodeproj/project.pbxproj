@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9C27C6BDE00005CCEA /* Exports.swift */; };
 		EB443FBA27C6BDE10005CCEA /* PassthroughBacked.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9D27C6BDE00005CCEA /* PassthroughBacked.swift */; };
-		EB443FBB27C6BDE10005CCEA /* Publisher+ShareCurrentValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9E27C6BDE00005CCEA /* Publisher+ShareCurrentValue.swift */; };
+		EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */; };
 		EB443FBC27C6BDE10005CCEA /* Unimplemented.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9F27C6BDE00005CCEA /* Unimplemented.swift */; };
 		EB443FBD27C6BDE10005CCEA /* L2CAPChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FA127C6BDE00005CCEA /* L2CAPChannel.swift */; };
 		EB443FBE27C6BDE10005CCEA /* ATTRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FA227C6BDE00005CCEA /* ATTRequest.swift */; };
@@ -49,7 +49,7 @@
 		EB443F9927C6BDE00005CCEA /* CombineCoreBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CombineCoreBluetooth.h; sourceTree = "<group>"; };
 		EB443F9C27C6BDE00005CCEA /* Exports.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exports.swift; sourceTree = "<group>"; };
 		EB443F9D27C6BDE00005CCEA /* PassthroughBacked.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PassthroughBacked.swift; sourceTree = "<group>"; };
-		EB443F9E27C6BDE00005CCEA /* Publisher+ShareCurrentValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publisher+ShareCurrentValue.swift"; sourceTree = "<group>"; };
+		EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publisher+Extensions.swift"; sourceTree = "<group>"; };
 		EB443F9F27C6BDE00005CCEA /* Unimplemented.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unimplemented.swift; sourceTree = "<group>"; };
 		EB443FA127C6BDE00005CCEA /* L2CAPChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = L2CAPChannel.swift; sourceTree = "<group>"; };
 		EB443FA227C6BDE00005CCEA /* ATTRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ATTRequest.swift; sourceTree = "<group>"; };
@@ -141,7 +141,7 @@
 			children = (
 				EB443F9C27C6BDE00005CCEA /* Exports.swift */,
 				EB443F9D27C6BDE00005CCEA /* PassthroughBacked.swift */,
-				EB443F9E27C6BDE00005CCEA /* Publisher+ShareCurrentValue.swift */,
+				EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */,
 				EB443F9F27C6BDE00005CCEA /* Unimplemented.swift */,
 			);
 			path = Internal;
@@ -355,7 +355,7 @@
 				EB443FC427C6BDE10005CCEA /* Live+PeripheralManager.swift in Sources */,
 				EB443FC927C6BDE10005CCEA /* Mock+Central.swift in Sources */,
 				EB443FCE27C6BDE10005CCEA /* Mock+CentralManager.swift in Sources */,
-				EB443FBB27C6BDE10005CCEA /* Publisher+ShareCurrentValue.swift in Sources */,
+				EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */,
 				EB443FBD27C6BDE10005CCEA /* L2CAPChannel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

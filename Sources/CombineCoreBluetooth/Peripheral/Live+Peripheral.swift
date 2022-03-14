@@ -1,4 +1,5 @@
 import Foundation
+import CoreBluetooth
 
 extension Peripheral {
   public init(cbperipheral: CBPeripheral) {
@@ -12,7 +13,7 @@ extension Peripheral {
       _services: { cbperipheral.services },
       _canSendWriteWithoutResponse: { cbperipheral.canSendWriteWithoutResponse },
       _ancsAuthorized: {
-        #if os(macOS)
+        #if os(macOS) && !targetEnvironment(macCatalyst)
         fatalError("This method is not callable on macOS")
         #else
         return cbperipheral.ancsAuthorized
@@ -25,7 +26,7 @@ extension Peripheral {
           .tryMap { result in
             try result.get().doubleValue
           }
-          .prefix(1)
+          .first()
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.readRSSI()
           })
@@ -36,20 +37,16 @@ extension Peripheral {
       _discoverServices: { (identifiers) in
         return delegate
           .didDiscoverServices
-          .filter({ (peripheral, error) in
-            guard let identifiers = identifiers else { return true } // nil identifiers means we want to discover anything we can
+          .filterFirstValueOrThrow(where: { peripheral in
+            // nil identifiers means we want to discover anything we can
+            guard let identifiers = identifiers else { return true }
+            // Only progress if the peripheral contains all the services we are looking for.
             let neededUUIDs = Set(identifiers)
             let foundUUIDs = Set((peripheral.services ?? []).map(\.uuid))
             let allFound = foundUUIDs.isSuperset(of: neededUUIDs)
             return allFound
           })
-          .prefix(1)
-          .tryMap({ (peripheral, error) in
-            if let error = error {
-              throw error
-            }
-            return peripheral.services ?? []
-          })
+          .map({ $0.services ?? [] })
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.discoverServices(identifiers)
           })
@@ -60,21 +57,18 @@ extension Peripheral {
       _discoverIncludedServices: { (identifiers, service) in
         return delegate
           .didDiscoverIncludedServices
-          .filter({ (discoveredService, error) in
+          .filterFirstValueOrThrow(where: { discoveredService in
+            // ignore characteristics from services we're not interested in.
             guard discoveredService.uuid == service.uuid else { return false }
+            // nil identifiers means we want to discover anything we can
             guard let identifiers = identifiers else { return true }
+            // Only progress if the discovered service contains all the included services we are looking for.
             let neededUUIDs = Set(identifiers)
             let foundUUIDs = Set((discoveredService.includedServices ?? []).map(\.uuid))
             let allFound = foundUUIDs.isSuperset(of: neededUUIDs)
             return allFound
           })
-          .prefix(1)
-          .tryMap({ (discoveredService, error) in
-            if let error = error {
-              throw error
-            }
-            return discoveredService.includedServices
-          })
+          .map(\.includedServices)
           .handleEvents(receiveSubscription: { (subscription) in
             cbperipheral.discoverIncludedServices(identifiers, for: service)
           })
@@ -85,22 +79,18 @@ extension Peripheral {
       _discoverCharacteristics: { (identifiers, service) in
         return delegate
           .didDiscoverCharacteristics
-          .filter({ (discoveredService, error) -> Bool in
-            guard discoveredService.uuid == service.uuid else { return false } // ignore characteristics from services we're not interested in.
-            guard let identifiers = identifiers else { return true } // nil identifiers means we want to discover anything we can
-            // only continue if all identifiers we're trying to discover are fully discovered.
+          .filterFirstValueOrThrow(where: { discoveredService in
+            // ignore characteristics from services we're not interested in.
+            guard discoveredService.uuid == service.uuid else { return false }
+            // nil identifiers means we want to discover anything we can
+            guard let identifiers = identifiers else { return true }
+            // Only progress if the discovered service contains all the characteristics we are looking for.
             let neededUUIDs = Set(identifiers)
             let foundUUIDs = Set((discoveredService.characteristics ?? []).map(\.uuid))
             let allFound = foundUUIDs.isSuperset(of: neededUUIDs)
             return allFound
           })
-          .tryMap({ (discoveredService, error) in
-            if let error = error {
-              throw error
-            }
-            return discoveredService.characteristics ?? []
-          })
-          .prefix(1)
+          .map({ $0.characteristics ?? [] })
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.discoverCharacteristics(identifiers, for: service)
           })
@@ -111,16 +101,9 @@ extension Peripheral {
       _readValueForCharacteristic: { (characteristic) in
         return delegate
           .didUpdateValueForCharacteristic
-          .filter({ (readCharacteristic, error) -> Bool in
-            return readCharacteristic.uuid == characteristic.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == characteristic.uuid
           })
-          .tryMap({ (characteristic, error) in
-            if let error = error {
-              throw error
-            }
-            return characteristic
-          })
-          .prefix(1)
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.readValue(for: characteristic)
           })
@@ -133,18 +116,20 @@ extension Peripheral {
       },
 
       _writeValueForCharacteristic: { (value, characteristic, writeType) in
+        if writeType == .withoutResponse {
+          // Return an empty publisher here, since we never expect to receive a response when writing using a .withoutResponse type.
+          return Empty()
+            .handleEvents(receiveSubscription: { (sub) in
+              cbperipheral.writeValue(value, for: characteristic, type: writeType)
+            })
+            .eraseToAnyPublisher()
+        }
+
         return delegate
           .didWriteValueForCharacteristic
-          .filter({ (writeCharacteristic, error) in
-            return writeCharacteristic.uuid == characteristic.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == characteristic.uuid
           })
-          .tryMap({ (characteristic, error) in
-            if let error = error {
-              throw error
-            }
-            return characteristic
-          })
-          .prefix(1)
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.writeValue(value, for: characteristic, type: writeType)
           })
@@ -153,20 +138,23 @@ extension Peripheral {
       },
 
       _setNotifyValue: { (enabled, characteristic) in
-        // Unlike elsewhere in this file, we fire this off immediately, since we may not care about the response if we're toggling it off.
-        cbperipheral.setNotifyValue(enabled, for: characteristic)
+        if characteristic.properties.contains(.notify) && !characteristic.properties.contains(.indicate) {
+          // if the peripheral does not support sending responses for notification changes to this characteristic,
+          // just do it when subscribing to an empty publisher since we won't expect to get a response otherwise.
+          return Empty()
+            .handleEvents(receiveSubscription: { (sub) in
+              cbperipheral.setNotifyValue(enabled, for: characteristic)
+            })
+            .eraseToAnyPublisher()
+        }
         return delegate
           .didUpdateNotificationState
-          .filter({ (notifyCharacteristic, error) in
-            return notifyCharacteristic.uuid == characteristic.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == characteristic.uuid
           })
-          .tryMap({ (characteristic, error) -> CBCharacteristic in
-            if let error = error {
-              throw error
-            }
-            return characteristic
+          .handleEvents(receiveSubscription: { _ in
+            cbperipheral.setNotifyValue(enabled, for: characteristic)
           })
-          .prefix(1)
           .shareCurrentValue()
           .eraseToAnyPublisher()
       },
@@ -174,17 +162,11 @@ extension Peripheral {
       _discoverDescriptors: { (characteristic) in
         return delegate
           .didDiscoverDescriptorsForCharacteristic
-          .filter({ (discoverCharacteristic, error) -> Bool in
-            return discoverCharacteristic.uuid == characteristic.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == characteristic.uuid
           })
-          .tryMap({ (characteristic, error) in
-            if let error = error {
-              throw error
-            }
-            return characteristic.descriptors
-          })
-          .prefix(1)
-          .handleEvents(receiveSubscription: { (sub) in
+          .map(\.descriptors)
+          .handleEvents(receiveSubscription: { _ in
             cbperipheral.discoverDescriptors(for: characteristic)
           })
           .shareCurrentValue()
@@ -194,17 +176,10 @@ extension Peripheral {
       _readValueForDescriptor: { (descriptor) in
         return delegate
           .didUpdateValueForDescriptor
-          .filter({ (readDescriptor, error) -> Bool in
-            return readDescriptor.uuid == descriptor.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == descriptor.uuid
           })
-          .tryMap({ (readDescriptor, error) in
-            if let error = error {
-              throw error
-            }
-            return readDescriptor
-          })
-          .prefix(1)
-          .handleEvents(receiveSubscription: { (sub) in
+          .handleEvents(receiveSubscription: { _ in
             cbperipheral.readValue(for: descriptor)
           })
           .shareCurrentValue()
@@ -214,17 +189,10 @@ extension Peripheral {
       _writeValueForDescriptor: { (value, descriptor) in
         return delegate
           .didWriteValueForDescriptor
-          .filter({ (writeDescriptor, error) -> Bool in
-            return writeDescriptor.uuid == descriptor.uuid
+          .filterFirstValueOrThrow(where: {
+            $0.uuid == descriptor.uuid
           })
-          .tryMap({ (writeDescriptor, error) in
-            if let error = error {
-              throw error
-            }
-            return writeDescriptor
-          })
-          .prefix(1)
-          .handleEvents(receiveSubscription: { (sub) in
+          .handleEvents(receiveSubscription: { _ in
             cbperipheral.writeValue(value, for: descriptor)
           })
           .shareCurrentValue()
@@ -234,16 +202,12 @@ extension Peripheral {
       _openL2CAPChannel: { (psm) in
         return delegate
           .didOpenChannel
-          .filter({ (channel, error) in
+          .filterFirstValueOrThrow(where: { channel, error in
             return channel?.psm == psm || error != nil
-          }).tryMap({ (channel, error) in
-            if let error = error {
-              throw error
-            }
-            return channel! // we won't get here unless channel isn't nil, so we can safely unwrap
           })
-          .prefix(1)
-          .handleEvents(receiveSubscription: { (sub) in
+        // we won't get here unless channel is not nil, so we can safely force-unwrap
+          .map { $0! }
+          .handleEvents(receiveSubscription: { _ in
             cbperipheral.openL2CAPChannel(psm)
           })
           .shareCurrentValue()
@@ -256,12 +220,11 @@ extension Peripheral {
           .filter({ (readCharacteristic, error) -> Bool in
             return readCharacteristic.uuid == characteristic.uuid
           })
-          .tryMap({ (characteristic, error) in
-            if let error = error {
-              throw error
-            }
-            return characteristic
-          })
+        // not limiting to `.first()` here as callers may want long-lived listening for value changes
+          .tryMap {
+            if let error = $1 { throw error }
+            return $0
+          }
           .eraseToAnyPublisher()
       },
 
@@ -273,7 +236,6 @@ extension Peripheral {
 }
 
 extension Peripheral {
-
   private class Delegate: NSObject, CBPeripheralDelegate {
     @PassthroughBacked var nameUpdates: AnyPublisher<String?, Never>
     func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
