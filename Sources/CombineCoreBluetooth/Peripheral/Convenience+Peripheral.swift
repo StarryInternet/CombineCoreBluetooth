@@ -1,4 +1,5 @@
 import Foundation
+import CoreBluetooth
 
 public enum PeripheralError: Error, Equatable {
   case serviceNotFound(CBUUID)
@@ -55,6 +56,15 @@ extension Peripheral {
         self.readValue(for: characteristic)
       }
       .map(\.value)
+      .eraseToAnyPublisher()
+  }
+
+  public func writeValue(_ value: Data, writeType: CBCharacteristicWriteType, forCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Void, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .flatMap { characteristic in
+        self.writeValue(value, for: characteristic, type: writeType)
+      }
+      .map { _ in }
       .eraseToAnyPublisher()
   }
 }
