@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PeripheralDiscovery {
+public struct PeripheralDiscovery: Identifiable {
   public let peripheral: Peripheral
   public let advertisementData: AdvertisementData
   public let rssi: Double?
@@ -9,5 +9,9 @@ public struct PeripheralDiscovery {
     self.peripheral = peripheral
     self.advertisementData = advertisementData
     self.rssi = rssi
+  }
+
+  public var id: UUID {
+    peripheral.id
   }
 }

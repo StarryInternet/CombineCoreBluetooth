@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0014FFB227F0359600D2A122 /* CombineCoreBluetooth in Frameworks */ = {isa = PBXBuildFile; productRef = 0014FFB127F0359600D2A122 /* CombineCoreBluetooth */; };
+		003719FB27EE588900C2F766 /* PeripheralDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003719FA27EE588900C2F766 /* PeripheralDemoApp.swift */; };
+		003719FD27EE588900C2F766 /* PeripheralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003719FC27EE588900C2F766 /* PeripheralView.swift */; };
+		003719FF27EE588C00C2F766 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003719FE27EE588C00C2F766 /* Assets.xcassets */; };
+		00371A0227EE588C00C2F766 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00371A0127EE588C00C2F766 /* Preview Assets.xcassets */; };
+		00371A2327F02B1900C2F766 /* CentralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00371A2227F02B1900C2F766 /* CentralView.swift */; };
 		EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9C27C6BDE00005CCEA /* Exports.swift */; };
 		EB443FBA27C6BDE10005CCEA /* PassthroughBacked.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9D27C6BDE00005CCEA /* PassthroughBacked.swift */; };
 		EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */; };
@@ -45,6 +51,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0014FFB027F032C000D2A122 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		003719F827EE588900C2F766 /* CentralPeripheralDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CentralPeripheralDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		003719FA27EE588900C2F766 /* PeripheralDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralDemoApp.swift; sourceTree = "<group>"; };
+		003719FC27EE588900C2F766 /* PeripheralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralView.swift; sourceTree = "<group>"; };
+		003719FE27EE588C00C2F766 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		00371A0127EE588C00C2F766 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		00371A2227F02B1900C2F766 /* CentralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralView.swift; sourceTree = "<group>"; };
 		EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CombineCoreBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB443F9927C6BDE00005CCEA /* CombineCoreBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CombineCoreBluetooth.h; sourceTree = "<group>"; };
 		EB443F9C27C6BDE00005CCEA /* Exports.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exports.swift; sourceTree = "<group>"; };
@@ -77,6 +90,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		003719F527EE588900C2F766 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0014FFB227F0359600D2A122 /* CombineCoreBluetooth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EB443F8B27C6BCA70005CCEA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -95,11 +116,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		003719F927EE588900C2F766 /* CentralPeripheralDemo */ = {
+			isa = PBXGroup;
+			children = (
+				0014FFB027F032C000D2A122 /* Info.plist */,
+				003719FA27EE588900C2F766 /* PeripheralDemoApp.swift */,
+				00371A2227F02B1900C2F766 /* CentralView.swift */,
+				003719FC27EE588900C2F766 /* PeripheralView.swift */,
+				003719FE27EE588C00C2F766 /* Assets.xcassets */,
+				00371A0027EE588C00C2F766 /* Preview Content */,
+			);
+			path = CentralPeripheralDemo;
+			sourceTree = "<group>";
+		};
+		00371A0027EE588C00C2F766 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				00371A0127EE588C00C2F766 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		EB443F8427C6BCA70005CCEA = {
 			isa = PBXGroup;
 			children = (
 				EB443F9827C6BDE00005CCEA /* Sources */,
 				EB443FE327C6C1B40005CCEA /* Tests */,
+				003719F927EE588900C2F766 /* CentralPeripheralDemo */,
 				EB443F8F27C6BCA70005CCEA /* Products */,
 				EB443FD027C6BE440005CCEA /* Frameworks */,
 			);
@@ -110,6 +153,7 @@
 			children = (
 				EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */,
 				EB443FD927C6C1940005CCEA /* CombineCoreBluetooth Tests.xctest */,
+				003719F827EE588900C2F766 /* CentralPeripheralDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -239,6 +283,26 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		003719F727EE588900C2F766 /* CentralPeripheralDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00371A0527EE588C00C2F766 /* Build configuration list for PBXNativeTarget "CentralPeripheralDemo" */;
+			buildPhases = (
+				003719F427EE588900C2F766 /* Sources */,
+				003719F527EE588900C2F766 /* Frameworks */,
+				003719F627EE588900C2F766 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CentralPeripheralDemo;
+			packageProductDependencies = (
+				0014FFB127F0359600D2A122 /* CombineCoreBluetooth */,
+			);
+			productName = PeripheralDemo;
+			productReference = 003719F827EE588900C2F766 /* CentralPeripheralDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
 		EB443F8D27C6BCA70005CCEA /* CombineCoreBluetooth */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EB443F9527C6BCA70005CCEA /* Build configuration list for PBXNativeTarget "CombineCoreBluetooth" */;
@@ -282,9 +346,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1320;
+				LastSwiftUpdateCheck = 1330;
 				LastUpgradeCheck = 1320;
 				TargetAttributes = {
+					003719F727EE588900C2F766 = {
+						CreatedOnToolsVersion = 13.3;
+					};
 					EB443F8D27C6BCA70005CCEA = {
 						CreatedOnToolsVersion = 13.2.1;
 					};
@@ -308,11 +375,21 @@
 			targets = (
 				EB443F8D27C6BCA70005CCEA /* CombineCoreBluetooth */,
 				EB443FD827C6C1940005CCEA /* CombineCoreBluetooth Tests */,
+				003719F727EE588900C2F766 /* CentralPeripheralDemo */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		003719F627EE588900C2F766 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00371A0227EE588C00C2F766 /* Preview Assets.xcassets in Resources */,
+				003719FF27EE588C00C2F766 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EB443F8C27C6BCA70005CCEA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -330,6 +407,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		003719F427EE588900C2F766 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00371A2327F02B1900C2F766 /* CentralView.swift in Sources */,
+				003719FD27EE588900C2F766 /* PeripheralView.swift in Sources */,
+				003719FB27EE588900C2F766 /* PeripheralDemoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EB443F8A27C6BCA70005CCEA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -379,6 +466,78 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		00371A0327EE588C00C2F766 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CentralPeripheralDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = AZKV6YHQQR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CentralPeripheralDemo/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Uses bluetooth for testing purposes";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Behaves as a bluetooth peripheral for testing purposes";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.starry.CentralPeripheralDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = Debug;
+		};
+		00371A0427EE588C00C2F766 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CentralPeripheralDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = AZKV6YHQQR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CentralPeripheralDemo/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Uses bluetooth for testing purposes";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Behaves as a bluetooth peripheral for testing purposes";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.starry.CentralPeripheralDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = Release;
+		};
 		EB443F9327C6BCA70005CCEA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -602,6 +761,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		00371A0527EE588C00C2F766 /* Build configuration list for PBXNativeTarget "CentralPeripheralDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00371A0327EE588C00C2F766 /* Debug */,
+				00371A0427EE588C00C2F766 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		EB443F8827C6BCA70005CCEA /* Build configuration list for PBXProject "CombineCoreBluetooth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -630,6 +798,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0014FFB127F0359600D2A122 /* CombineCoreBluetooth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CombineCoreBluetooth;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = EB443F8527C6BCA70005CCEA /* Project object */;
 }
