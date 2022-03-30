@@ -11,7 +11,9 @@ import SwiftUI
 class CentralDemo: ObservableObject {
   let centralManager: CentralManager = .live()
   @Published var peripherals: [PeripheralDiscovery] = []
+  var scanTask: AnyCancellable?
   @Published var peripheralConnectResult: Result<Peripheral, Error>?
+  @Published var scanning: Bool = false
   var cancellables: Set<AnyCancellable> = []
 
   var connectedPeripheral: Peripheral? {
@@ -25,13 +27,22 @@ class CentralDemo: ObservableObject {
   }
 
   func searchForPeripherals() {
-    centralManager.scanForPeripherals(withServices: [CBUUID.service])
+    scanTask = centralManager.scanForPeripherals(withServices: [CBUUID.service])
       .scan([], { list, discovery -> [PeripheralDiscovery] in
         guard !list.contains(where: { $0.id == discovery.id }) else { return list }
         return list + [discovery]
       })
       .receive(on: DispatchQueue.main)
-      .assign(to: &$peripherals)
+      .sink(receiveValue: { [weak self] in
+        self?.peripherals = $0
+      })
+    self.scanning = centralManager.isScanning
+  }
+
+  func stopSearching() {
+    scanTask = nil
+    peripherals = []
+    self.scanning = centralManager.isScanning
   }
 
   func connect(_ discovery: PeripheralDiscovery) {
@@ -58,8 +69,6 @@ class PeripheralDevice: ObservableObject {
     type: CBCharacteristicWriteType,
     result: ReferenceWritableKeyPath<PeripheralDevice, Published<Result<Date, Error>?>.Publisher>
   ) {
-    writeResponseResult = nil
-
     peripheral.writeValue(
       Data("Hello".utf8),
       writeType: type,
@@ -97,8 +106,14 @@ struct CentralView: View {
     } else {
       Form {
         Section {
-          Button("Search for peripheral") {
-            demo.searchForPeripherals()
+          if !demo.scanning {
+            Button("Search for peripheral") {
+              demo.searchForPeripherals()
+            }
+          } else {
+            Button("Stop searching") {
+              demo.stopSearching()
+            }
           }
 
           if let error = demo.connectError {

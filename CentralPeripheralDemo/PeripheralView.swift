@@ -28,7 +28,7 @@ class PeripheralDemo: ObservableObject {
         guard let self = self else { return }
         print(requests.map({ r in
           "Write to \(r.characteristic.uuid), value: \(String(bytes: r.value ?? Data(), encoding: .utf8) ?? "<nil>")"
-        }), to: &self.logs)
+        }).joined(separator: "\n"), to: &self.logs)
 
         self.peripheralManager.respond(to: requests[0], withResult: .success)
       }.store(in: &cancellables)
