@@ -117,7 +117,7 @@ extension Peripheral {
 
       _writeValueForCharacteristic: { (value, characteristic, writeType) in
         if writeType == .withoutResponse {
-          // Return an empty publisher here, since we never expect to receive a response when writing using a .withoutResponse type.
+          // Return an empty publisher here, since we never expect to receive a response when writing using a .withoutResponse type. This will ignore errors we might get, but that will be resolved in a later version.
           return Empty()
             .handleEvents(receiveSubscription: { (sub) in
               cbperipheral.writeValue(value, for: characteristic, type: writeType)
@@ -217,8 +217,6 @@ extension Peripheral {
             return $0
           }
           .eraseToAnyPublisher()
-
-        cbperipheral.
       },
 
       isReadyToSendWriteWithoutResponse: delegate.isReadyToSendWriteWithoutResponse,
