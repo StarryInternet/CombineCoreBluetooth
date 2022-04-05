@@ -138,15 +138,6 @@ extension Peripheral {
       },
 
       _setNotifyValue: { (enabled, characteristic) in
-        if characteristic.properties.contains(.notify) && !characteristic.properties.contains(.indicate) {
-          // if the peripheral does not support sending responses for notification changes to this characteristic,
-          // just do it when subscribing to an empty publisher since we won't expect to get a response otherwise.
-          return Empty()
-            .handleEvents(receiveSubscription: { (sub) in
-              cbperipheral.setNotifyValue(enabled, for: characteristic)
-            })
-            .eraseToAnyPublisher()
-        }
         return delegate
           .didUpdateNotificationState
           .filterFirstValueOrThrow(where: {
@@ -226,6 +217,8 @@ extension Peripheral {
             return $0
           }
           .eraseToAnyPublisher()
+
+        cbperipheral.
       },
 
       isReadyToSendWriteWithoutResponse: delegate.isReadyToSendWriteWithoutResponse,
