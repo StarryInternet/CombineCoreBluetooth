@@ -20,7 +20,7 @@ CombineCoreBluetooth is a library that bridges Apple's `CoreBluetooth` framework
 Add this line to your dependencies list in your Package.swift:
 
 ```swift
-.package(name: "CombineCoreBluetooth", url: "https://github.com/StarryInternet/CombineCoreBluetooth.git", from: "0.2.0"),
+.package(name: "CombineCoreBluetooth", url: "https://github.com/StarryInternet/CombineCoreBluetooth.git", from: "0.3.0"),
 ```
 
 ### Cocoapods
