@@ -117,24 +117,39 @@ extension Peripheral {
 
       _writeValueForCharacteristic: { (value, characteristic, writeType) in
         if writeType == .withoutResponse {
-          // Return an empty publisher here, since we never expect to receive a response when writing using a .withoutResponse type. This will ignore errors we might get, but that will be resolved in a later version.
-          return Empty()
+          if characteristic.properties.contains(.writeWithoutResponse) {
+            // Return an empty publisher here, since we never expect to receive a response.
+            return Empty()
+              .handleEvents(receiveSubscription: { (sub) in
+                cbperipheral.writeValue(value, for: characteristic, type: writeType)
+              })
+              .eraseToAnyPublisher()
+          } else {
+            // a responseless-write against a characteristic that doesn't support a respoonse is silently ignored
+            // by core bluetooth and never sends to the peripheral, so surface that case with an error.
+            return Fail(
+              error: NSError(
+                domain: CBATTErrorDomain,
+                code: CBATTError.writeNotPermitted.rawValue,
+                userInfo: [
+                  NSLocalizedDescriptionKey: "Writing without response is not permitted."
+                ]
+              )
+            )
+            .eraseToAnyPublisher()
+          }
+        } else {
+          return delegate
+            .didWriteValueForCharacteristic
+            .filterFirstValueOrThrow(where: {
+              $0.uuid == characteristic.uuid
+            })
             .handleEvents(receiveSubscription: { (sub) in
               cbperipheral.writeValue(value, for: characteristic, type: writeType)
             })
+            .shareCurrentValue()
             .eraseToAnyPublisher()
         }
-
-        return delegate
-          .didWriteValueForCharacteristic
-          .filterFirstValueOrThrow(where: {
-            $0.uuid == characteristic.uuid
-          })
-          .handleEvents(receiveSubscription: { (sub) in
-            cbperipheral.writeValue(value, for: characteristic, type: writeType)
-          })
-          .shareCurrentValue()
-          .eraseToAnyPublisher()
       },
 
       _setNotifyValue: { (enabled, characteristic) in
