@@ -119,7 +119,9 @@ struct CentralView: View {
           if let error = demo.connectError {
             Text("Error: \(String(describing: error))")
           }
+        }
 
+        Section("Discovered peripherals") {
           ForEach(demo.peripherals) { discovery in
             Button(discovery.peripheral.name ?? "<nil>") {
               demo.connect(discovery)
@@ -217,7 +219,11 @@ struct PeripheralDeviceView: View {
       case let .success(value)?:
         Text("Wrote at \(String(describing: value))")
       case let .failure(error)?:
-        Text("Error: \(String(describing: error))")
+        if let error = error as? LocalizedError, let errorDescription = error.errorDescription {
+          Text("Error: \(errorDescription)")
+        } else {
+          Text("Error: \(String(describing: error))")
+        }
       case nil:
         EmptyView()
       }
