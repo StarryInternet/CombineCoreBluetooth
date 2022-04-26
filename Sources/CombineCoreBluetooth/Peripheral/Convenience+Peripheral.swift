@@ -55,7 +55,6 @@ extension Peripheral {
       .flatMap { characteristic in
         self.readValue(for: characteristic)
       }
-      .map(\.value)
       .eraseToAnyPublisher()
   }
 
@@ -64,7 +63,6 @@ extension Peripheral {
       .flatMap { characteristic in
         self.writeValue(value, for: characteristic, type: writeType)
       }
-      .map { _ in }
       .eraseToAnyPublisher()
   }
 }

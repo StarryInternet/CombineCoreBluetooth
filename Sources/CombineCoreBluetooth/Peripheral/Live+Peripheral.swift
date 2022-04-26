@@ -104,6 +104,7 @@ extension Peripheral {
           .filterFirstValueOrThrow(where: {
             $0.uuid == characteristic.uuid
           })
+          .map(\.value)
           .handleEvents(receiveSubscription: { (sub) in
             cbperipheral.readValue(for: characteristic)
           })
@@ -144,6 +145,7 @@ extension Peripheral {
             .filterFirstValueOrThrow(where: {
               $0.uuid == characteristic.uuid
             })
+            .map { _ in }
             .handleEvents(receiveSubscription: { (sub) in
               cbperipheral.writeValue(value, for: characteristic, type: writeType)
             })
@@ -158,6 +160,7 @@ extension Peripheral {
           .filterFirstValueOrThrow(where: {
             $0.uuid == characteristic.uuid
           })
+          .map { _ in }
           .handleEvents(receiveSubscription: { _ in
             cbperipheral.setNotifyValue(enabled, for: characteristic)
           })
@@ -185,6 +188,7 @@ extension Peripheral {
           .filterFirstValueOrThrow(where: {
             $0.uuid == descriptor.uuid
           })
+          .map(\.value)
           .handleEvents(receiveSubscription: { _ in
             cbperipheral.readValue(for: descriptor)
           })
@@ -198,6 +202,7 @@ extension Peripheral {
           .filterFirstValueOrThrow(where: {
             $0.uuid == descriptor.uuid
           })
+          .map { _ in }
           .handleEvents(receiveSubscription: { _ in
             cbperipheral.writeValue(value, for: descriptor)
           })
@@ -229,7 +234,7 @@ extension Peripheral {
         // not limiting to `.first()` here as callers may want long-lived listening for value changes
           .tryMap {
             if let error = $1 { throw error }
-            return $0
+            return $0.value
           }
           .eraseToAnyPublisher()
       },

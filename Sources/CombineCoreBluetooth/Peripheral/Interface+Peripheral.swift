@@ -17,15 +17,15 @@ public struct Peripheral {
   var _discoverServices: (_ serviceUUIDs: [CBUUID]?) -> AnyPublisher<[CBService], Error>
   var _discoverIncludedServices: (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> AnyPublisher<[CBService]?, Error>
   var _discoverCharacteristics: (_ characteristicUUIDs: [CBUUID]?, _ service: CBService) -> AnyPublisher<[CBCharacteristic], Error>
-  var _readValueForCharacteristic: (_ characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error>
+  var _readValueForCharacteristic: (_ characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error>
   var _maximumWriteValueLength: (_ type: CBCharacteristicWriteType) -> Int
-  var _writeValueForCharacteristic: (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> AnyPublisher<CBCharacteristic, Error>
-  var _setNotifyValue: (_ enabled: Bool, _ characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error>
+  var _writeValueForCharacteristic: (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> AnyPublisher<Void, Error>
+  var _setNotifyValue: (_ enabled: Bool, _ characteristic: CBCharacteristic) -> AnyPublisher<Void, Error>
   var _discoverDescriptors: (_ characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error>
-  var _readValueForDescriptor: (_ descriptor: CBDescriptor) -> AnyPublisher<CBDescriptor, Error>
-  var _writeValueForDescriptor: (_ data: Data, _ descriptor: CBDescriptor) -> AnyPublisher<CBDescriptor, Error>
+  var _readValueForDescriptor: (_ descriptor: CBDescriptor) -> AnyPublisher<Any?, Error>
+  var _writeValueForDescriptor: (_ data: Data, _ descriptor: CBDescriptor) -> AnyPublisher<Void, Error>
   var _openL2CAPChannel: (_ PSM: CBL2CAPPSM) -> AnyPublisher<L2CAPChannel, Error>
-  var _listenForUpdatesToCharacteristic: (_ characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error>
+  var _listenForUpdatesToCharacteristic: (_ characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error>
 
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>
@@ -72,7 +72,7 @@ public struct Peripheral {
     _discoverCharacteristics(characteristicUUIDs, service)
   }
 
-  public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error> {
+  public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
     _readValueForCharacteristic(characteristic)
   }
 
@@ -80,11 +80,11 @@ public struct Peripheral {
     _maximumWriteValueLength(writeType)
   }
 
-  public func writeValue(_ value: Data, for characteristic: CBCharacteristic, type writeType: CBCharacteristicWriteType) -> AnyPublisher<CBCharacteristic, Error> {
+  public func writeValue(_ value: Data, for characteristic: CBCharacteristic, type writeType: CBCharacteristicWriteType) -> AnyPublisher<Void, Error> {
     _writeValueForCharacteristic(value, characteristic, writeType)
   }
 
-  public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error> {
+  public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     _setNotifyValue(enabled, characteristic)
   }
 
@@ -92,11 +92,11 @@ public struct Peripheral {
     _discoverDescriptors(characteristic)
   }
 
-  public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<CBDescriptor, Error> {
+  public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
     _readValueForDescriptor(descriptor)
   }
 
-  public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<CBDescriptor, Error> {
+  public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
     _writeValueForDescriptor(value, descriptor)
   }
 
@@ -104,7 +104,7 @@ public struct Peripheral {
     _openL2CAPChannel(psm)
   }
 
-  public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<CBCharacteristic, Error> {
+  public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
     _listenForUpdatesToCharacteristic(characteristic)
   }
 }
