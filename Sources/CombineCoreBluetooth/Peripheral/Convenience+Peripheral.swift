@@ -55,7 +55,6 @@ extension Peripheral {
       .flatMap { characteristic in
         self.readValue(for: characteristic)
       }
-      .map(\.value)
       .eraseToAnyPublisher()
   }
 
@@ -64,7 +63,23 @@ extension Peripheral {
       .flatMap { characteristic in
         self.writeValue(value, for: characteristic, type: writeType)
       }
-      .map { _ in }
+      .eraseToAnyPublisher()
+  }
+
+  /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic.
+  /// - Parameter characteristic: The characteristic to listen to for updates.
+  /// - Returns: A publisher that will listen to updates to the given characteristic. Continues indefinitely, unless an error is encountered.
+  public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
+    delegate
+      .didUpdateValueForCharacteristic
+    // not limiting to `.first()` here as callers may want long-lived listening for value changes
+      .filter({ (readCharacteristic, error) -> Bool in
+        return readCharacteristic.uuid == characteristic.uuid
+      })
+      .tryMap {
+        if let error = $1 { throw error }
+        return $0.value
+      }
       .eraseToAnyPublisher()
   }
 }

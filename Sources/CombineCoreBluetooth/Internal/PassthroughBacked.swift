@@ -15,6 +15,10 @@ struct PassthroughBacked<Output> {
     subject.eraseToAnyPublisher()
   }
 
+  var projectedValue: PassthroughBacked<Output> {
+    self
+  }
+
   func send(_ value: Output) {
     subject.send(value)
   }
