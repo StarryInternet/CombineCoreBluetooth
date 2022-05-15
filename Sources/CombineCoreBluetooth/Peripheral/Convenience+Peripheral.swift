@@ -44,7 +44,6 @@ extension Peripheral {
       .eraseToAnyPublisher()
   }
 
-
   /// Reads the value in the characteristic with the given UUID from the service with the given UUID.
   /// - Parameters:
   ///   - characteristicUUID: The UUID of the characteristic to read from.
@@ -70,8 +69,7 @@ extension Peripheral {
   /// - Parameter characteristic: The characteristic to listen to for updates.
   /// - Returns: A publisher that will listen to updates to the given characteristic. Continues indefinitely, unless an error is encountered.
   public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
-    delegate
-      .didUpdateValueForCharacteristic
+    didUpdateValueForCharacteristic
     // not limiting to `.first()` here as callers may want long-lived listening for value changes
       .filter({ (readCharacteristic, error) -> Bool in
         return readCharacteristic.uuid == characteristic.uuid

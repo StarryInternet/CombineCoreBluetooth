@@ -3,8 +3,7 @@ import CoreBluetooth
 
 /// The `CombineCoreBluetooth` wrapper around `CBPeripheral`.
 public struct Peripheral {
-  let rawValue: CBPeripheral?
-  let delegate: Delegate
+  let delegate: Delegate?
 
   var _name: () -> String?
   var _identifier: () -> UUID
@@ -27,6 +26,18 @@ public struct Peripheral {
   var _readValueForDescriptor: (_ descriptor: CBDescriptor) -> Void
   var _writeValueForDescriptor: (_ data: Data, _ descriptor: CBDescriptor) -> Void
   var _openL2CAPChannel: (_ PSM: CBL2CAPPSM) -> Void
+
+  var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
+  var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
+  var didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never>
+  var didDiscoverCharacteristics:              AnyPublisher<(CBService, Error?), Never>
+  var didUpdateValueForCharacteristic:         AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didWriteValueForCharacteristic:          AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didUpdateNotificationState:              AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didDiscoverDescriptorsForCharacteristic: AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
+  var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
+  var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
 
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>
@@ -58,8 +69,7 @@ public struct Peripheral {
   }
 
   public func readRSSI() -> AnyPublisher<Double, Error> {
-    delegate
-      .didReadRSSI
+    didReadRSSI
       .tryMap { result in
         try result.get()
       }
@@ -72,8 +82,7 @@ public struct Peripheral {
   }
 
   public func discoverServices(_ serviceUUIDs: [CBUUID]?) -> AnyPublisher<[CBService], Error> {
-    delegate
-      .didDiscoverServices
+    didDiscoverServices
       .filterFirstValueOrThrow(where: { services in
         // nil identifiers means we want to discover anything we can
         guard let identifiers = serviceUUIDs else { return true }
@@ -82,7 +91,7 @@ public struct Peripheral {
         let foundUUIDs = Set(services.map(\.uuid))
         let allFound = foundUUIDs.isSuperset(of: neededUUIDs)
         return allFound
-      })
+      }) //
       .handleEvents(receiveSubscription: { [_discoverServices] _ in
         _discoverServices(serviceUUIDs)
       })
@@ -91,8 +100,7 @@ public struct Peripheral {
   }
 
   public func discoverIncludedServices(_ serviceUUIDS: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBService]?, Error> {
-    delegate
-      .didDiscoverIncludedServices
+    didDiscoverIncludedServices
       .filterFirstValueOrThrow(where: { discoveredService in
         // ignore characteristics from services we're not interested in.
         guard discoveredService.uuid == service.uuid else { return false }
@@ -113,8 +121,7 @@ public struct Peripheral {
   }
 
   public func discoverCharacteristics(_ characteristicUUIDs: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBCharacteristic], Error> {
-    delegate
-      .didDiscoverCharacteristics
+    didDiscoverCharacteristics
       .filterFirstValueOrThrow(where: { discoveredService in
         // ignore characteristics from services we're not interested in.
         guard discoveredService.uuid == service.uuid else { return false }
@@ -135,8 +142,7 @@ public struct Peripheral {
   }
 
   public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
-    delegate
-      .didUpdateValueForCharacteristic
+    didUpdateValueForCharacteristic
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -185,8 +191,7 @@ public struct Peripheral {
   }
 
   private func writeValueWithResponse(_ value: Data, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
-    delegate
-     .didWriteValueForCharacteristic
+    didWriteValueForCharacteristic
      .filterFirstValueOrThrow(where: {
        $0.uuid == characteristic.uuid
      })
@@ -199,8 +204,7 @@ public struct Peripheral {
   }
 
   public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
-    delegate
-      .didUpdateNotificationState
+    didUpdateNotificationState
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -213,8 +217,7 @@ public struct Peripheral {
   }
 
   public func discoverDescriptors(for characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error> {
-    delegate
-      .didDiscoverDescriptorsForCharacteristic
+    didDiscoverDescriptorsForCharacteristic
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -227,8 +230,7 @@ public struct Peripheral {
   }
 
   public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
-    delegate
-      .didUpdateValueForDescriptor
+    didUpdateValueForDescriptor
       .filterFirstValueOrThrow(where: {
         $0.uuid == descriptor.uuid
       })
@@ -241,8 +243,7 @@ public struct Peripheral {
   }
 
   public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
-    delegate
-      .didWriteValueForDescriptor
+    didWriteValueForDescriptor
       .filterFirstValueOrThrow(where: {
         $0.uuid == descriptor.uuid
       })
@@ -255,8 +256,7 @@ public struct Peripheral {
   }
 
   public func openL2CAPChannel(_ psm: CBL2CAPPSM) -> AnyPublisher<L2CAPChannel, Error> {
-    delegate
-      .didOpenChannel
+    didOpenChannel
       .filterFirstValueOrThrow(where: { channel, error in
         return channel?.psm == psm || error != nil
       })
@@ -272,6 +272,12 @@ public struct Peripheral {
 
 extension Peripheral {
   public class Delegate: NSObject {
+    var cbperipheral: CBPeripheral?
+
+    public init(_ cbperipheral: CBPeripheral? = nil) {
+      self.cbperipheral = cbperipheral
+    }
+
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
     let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()

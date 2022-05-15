@@ -61,15 +61,15 @@ extension CentralManager {
         )
         .prefix(1)
         .handleEvents(receiveSubscription: { _ in
-          centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
+          centralManager.connect(peripheral.delegate!.cbperipheral!, options: options?.dictionary)
         }, receiveCancel: {
-          centralManager.cancelPeripheralConnection(peripheral.rawValue!)
+          centralManager.cancelPeripheralConnection(peripheral.delegate!.cbperipheral!)
         })
         .shareCurrentValue()
         .eraseToAnyPublisher()
       },
       _cancelPeripheralConnection: { (peripheral) in
-        centralManager.cancelPeripheralConnection(peripheral.rawValue!)
+        centralManager.cancelPeripheralConnection(peripheral.delegate!.cbperipheral!)
       },
       _registerForConnectionEvents: {
         #if os(macOS) && !targetEnvironment(macCatalyst)
