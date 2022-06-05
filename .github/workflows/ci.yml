@@ -20,9 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: swift build
+        run: swift build --build-tests
       - name: Run tests
-        run: swift test
+        run: swift test --skip-build
       - name: Pod lint
         run: pod lib lint --quick
       - name: Verify Carthage
