@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - name: Build
@@ -29,7 +29,7 @@ jobs:
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - name: Build
