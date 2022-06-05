@@ -16,20 +16,20 @@ on:
 
 jobs:
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: swift build
+        run: swift build --build-tests
       - name: Run tests
-        run: swift test
+        run: swift test --skip-build
       - name: Pod lint
         run: pod lib lint --quick
       - name: Verify Carthage
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - name: Build
