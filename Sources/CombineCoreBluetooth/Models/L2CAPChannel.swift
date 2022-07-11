@@ -3,7 +3,7 @@ import CoreBluetooth
 
 public struct L2CAPChannel {
   // Need to keep a reference to this so the system doesn't close the channel
-  let rawValue: CBL2CAPChannel
+  let rawValue: CBL2CAPChannel?
   public let peer: Peer
   public let inputStream: InputStream
   public let outputStream: OutputStream
