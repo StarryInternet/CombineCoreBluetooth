@@ -3,16 +3,29 @@
 
 import PackageDescription
 
+#if swift(>=5.6)
+let dependencies: [Package.Dependency] = [
+  .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+]
+#else
+let dependencies: [Package.Dependency] = []
+#endif
+
 let package = Package(
   name: "CombineCoreBluetooth",
-  platforms: [.iOS(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v6)],
+  platforms: [
+    .iOS(.v13),
+    .macOS(.v10_15),
+    .tvOS(.v13),
+    .watchOS(.v6),
+  ],
   products: [
     .library(
       name: "CombineCoreBluetooth",
       targets: ["CombineCoreBluetooth"]
     ),
   ],
-  dependencies: [],
+  dependencies: dependencies,
   targets: [
     .target(
       name: "CombineCoreBluetooth",
