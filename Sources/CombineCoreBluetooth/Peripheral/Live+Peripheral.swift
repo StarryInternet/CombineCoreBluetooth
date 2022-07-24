@@ -5,8 +5,9 @@ extension Peripheral {
   public init(cbperipheral: CBPeripheral) {
     let delegate = cbperipheral.delegate as? Delegate ?? Delegate()
     cbperipheral.delegate = delegate
+    delegate.cbperipheral = cbperipheral
+
     self.init(
-      rawValue: cbperipheral,
       delegate: delegate,
       _name: { cbperipheral.name },
       _identifier: { cbperipheral.identifier },
@@ -33,6 +34,18 @@ extension Peripheral {
       _readValueForDescriptor: cbperipheral.readValue(for:),
       _writeValueForDescriptor: cbperipheral.writeValue(_:for:),
       _openL2CAPChannel: cbperipheral.openL2CAPChannel(_:),
+
+      didReadRSSI: delegate.didReadRSSI.eraseToAnyPublisher(),
+      didDiscoverServices: delegate.didDiscoverServices.eraseToAnyPublisher(),
+      didDiscoverIncludedServices: delegate.didDiscoverIncludedServices.eraseToAnyPublisher(),
+      didDiscoverCharacteristics: delegate.didDiscoverCharacteristics.eraseToAnyPublisher(),
+      didUpdateValueForCharacteristic: delegate.didUpdateValueForCharacteristic.eraseToAnyPublisher(),
+      didWriteValueForCharacteristic: delegate.didWriteValueForCharacteristic.eraseToAnyPublisher(),
+      didUpdateNotificationState: delegate.didUpdateNotificationState.eraseToAnyPublisher(),
+      didDiscoverDescriptorsForCharacteristic: delegate.didDiscoverDescriptorsForCharacteristic.eraseToAnyPublisher(),
+      didUpdateValueForDescriptor: delegate.didUpdateValueForDescriptor.eraseToAnyPublisher(),
+      didWriteValueForDescriptor: delegate.didWriteValueForDescriptor.eraseToAnyPublisher(),
+      didOpenChannel: delegate.didOpenChannel.eraseToAnyPublisher(),
 
       isReadyToSendWriteWithoutResponse: delegate.isReadyToSendWriteWithoutResponse.eraseToAnyPublisher(),
       nameUpdates: delegate.nameUpdates.eraseToAnyPublisher(),

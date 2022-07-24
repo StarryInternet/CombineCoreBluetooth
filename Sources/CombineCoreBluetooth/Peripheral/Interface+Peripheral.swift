@@ -3,8 +3,7 @@ import CoreBluetooth
 
 /// The `CombineCoreBluetooth` wrapper around `CBPeripheral`.
 public struct Peripheral {
-  let rawValue: CBPeripheral?
-  let delegate: Delegate
+  let delegate: Delegate?
 
   var _name: () -> String?
   var _identifier: () -> UUID
@@ -28,9 +27,23 @@ public struct Peripheral {
   var _writeValueForDescriptor: (_ data: Data, _ descriptor: CBDescriptor) -> Void
   var _openL2CAPChannel: (_ PSM: CBL2CAPPSM) -> Void
 
+  var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
+  var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
+  var didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never>
+  var didDiscoverCharacteristics:              AnyPublisher<(CBService, Error?), Never>
+  var didUpdateValueForCharacteristic:         AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didWriteValueForCharacteristic:          AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didUpdateNotificationState:              AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didDiscoverDescriptorsForCharacteristic: AnyPublisher<(CBCharacteristic, Error?), Never>
+  var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
+  var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
+  var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
+
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>
   public var invalidatedServiceUpdates: AnyPublisher<[CBService], Never>
+
+  // MARK: - Implementations
 
   public var name: String? {
     _name()
@@ -58,8 +71,7 @@ public struct Peripheral {
   }
 
   public func readRSSI() -> AnyPublisher<Double, Error> {
-    delegate
-      .didReadRSSI
+    didReadRSSI
       .tryMap { result in
         try result.get()
       }
@@ -72,8 +84,7 @@ public struct Peripheral {
   }
 
   public func discoverServices(_ serviceUUIDs: [CBUUID]?) -> AnyPublisher<[CBService], Error> {
-    delegate
-      .didDiscoverServices
+    didDiscoverServices
       .filterFirstValueOrThrow(where: { services in
         // nil identifiers means we want to discover anything we can
         guard let identifiers = serviceUUIDs else { return true }
@@ -82,7 +93,7 @@ public struct Peripheral {
         let foundUUIDs = Set(services.map(\.uuid))
         let allFound = foundUUIDs.isSuperset(of: neededUUIDs)
         return allFound
-      })
+      }) //
       .handleEvents(receiveSubscription: { [_discoverServices] _ in
         _discoverServices(serviceUUIDs)
       })
@@ -91,8 +102,7 @@ public struct Peripheral {
   }
 
   public func discoverIncludedServices(_ serviceUUIDS: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBService]?, Error> {
-    delegate
-      .didDiscoverIncludedServices
+    didDiscoverIncludedServices
       .filterFirstValueOrThrow(where: { discoveredService in
         // ignore characteristics from services we're not interested in.
         guard discoveredService.uuid == service.uuid else { return false }
@@ -113,8 +123,7 @@ public struct Peripheral {
   }
 
   public func discoverCharacteristics(_ characteristicUUIDs: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBCharacteristic], Error> {
-    delegate
-      .didDiscoverCharacteristics
+    didDiscoverCharacteristics
       .filterFirstValueOrThrow(where: { discoveredService in
         // ignore characteristics from services we're not interested in.
         guard discoveredService.uuid == service.uuid else { return false }
@@ -135,8 +144,7 @@ public struct Peripheral {
   }
 
   public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
-    delegate
-      .didUpdateValueForCharacteristic
+    didUpdateValueForCharacteristic
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -185,8 +193,7 @@ public struct Peripheral {
   }
 
   private func writeValueWithResponse(_ value: Data, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
-    delegate
-     .didWriteValueForCharacteristic
+    didWriteValueForCharacteristic
      .filterFirstValueOrThrow(where: {
        $0.uuid == characteristic.uuid
      })
@@ -199,8 +206,7 @@ public struct Peripheral {
   }
 
   public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
-    delegate
-      .didUpdateNotificationState
+    didUpdateNotificationState
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -213,8 +219,7 @@ public struct Peripheral {
   }
 
   public func discoverDescriptors(for characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error> {
-    delegate
-      .didDiscoverDescriptorsForCharacteristic
+    didDiscoverDescriptorsForCharacteristic
       .filterFirstValueOrThrow(where: {
         $0.uuid == characteristic.uuid
       })
@@ -227,8 +232,7 @@ public struct Peripheral {
   }
 
   public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
-    delegate
-      .didUpdateValueForDescriptor
+    didUpdateValueForDescriptor
       .filterFirstValueOrThrow(where: {
         $0.uuid == descriptor.uuid
       })
@@ -241,8 +245,7 @@ public struct Peripheral {
   }
 
   public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
-    delegate
-      .didWriteValueForDescriptor
+    didWriteValueForDescriptor
       .filterFirstValueOrThrow(where: {
         $0.uuid == descriptor.uuid
       })
@@ -255,8 +258,7 @@ public struct Peripheral {
   }
 
   public func openL2CAPChannel(_ psm: CBL2CAPPSM) -> AnyPublisher<L2CAPChannel, Error> {
-    delegate
-      .didOpenChannel
+    didOpenChannel
       .filterFirstValueOrThrow(where: { channel, error in
         return channel?.psm == psm || error != nil
       })
@@ -268,10 +270,101 @@ public struct Peripheral {
       .shareCurrentValue()
       .eraseToAnyPublisher()
   }
+
+  // MARK: - Convenience methods
+
+  /// Discovers the service with the given service UUID, then discovers characteristics with the given UUIDs and returns those.
+  /// - Parameters:
+  ///   - characteristicUUIDs: The UUIDs of the characteristics you want to discover.
+  ///   - serviceUUID: The service to discover that contain the characteristics you need.
+  /// - Returns: A publisher of the desired characteristics
+  public func discoverCharacteristics(withUUIDs characteristicUUIDs: [CBUUID], inServiceWithUUID serviceUUID: CBUUID) -> AnyPublisher<[CBCharacteristic], Error> {
+    discoverServices([serviceUUID])
+    // discover all the characteristics we need
+      .flatMap { (services) -> AnyPublisher<[CBCharacteristic], Error> in
+        // safe to force unwrap, since `discoverServices` guarantees that if you give it a non-nil array, it will only publish a value
+        // if the requested services are all present
+        guard let service = services.first(where: { $0.uuid == serviceUUID }) else {
+          return Fail(error: PeripheralError.serviceNotFound(serviceUUID)).eraseToAnyPublisher()
+        }
+        return discoverCharacteristics(characteristicUUIDs, for: service)
+      }
+      .first()
+      .eraseToAnyPublisher()
+  }
+
+  /// Discovers the service with the given service UUID, then discovers the characteristic with the given UUID and returns that.
+  /// - Parameters:
+  ///   - characteristicUUIDs: The UUID of the characteristic you want to discover.
+  ///   - serviceUUID: The service to discover that contain the characteristics you need.
+  /// - Returns: A publisher of the desired characteristic
+  public func discoverCharacteristic(withUUID characteristicUUID: CBUUID, inServiceWithUUID serviceUUID: CBUUID) -> AnyPublisher<CBCharacteristic, Error> {
+    discoverCharacteristics(withUUIDs: [characteristicUUID], inServiceWithUUID: serviceUUID)
+      .tryMap { characteristics in
+        // assume core bluetooth won't send us a characteristic list without the characteristic we expect
+        guard let characteristic = characteristics.first(where: { characteristic in characteristic.uuid == characteristicUUID }) else {
+          throw PeripheralError.characteristicNotFound(characteristicUUID)
+        }
+        return characteristic
+      }
+      .eraseToAnyPublisher()
+  }
+
+  /// Reads the value in the characteristic with the given UUID from the service with the given UUID.
+  /// - Parameters:
+  ///   - characteristicUUID: The UUID of the characteristic to read from.
+  ///   - serviceUUID: The UUID of the service the characteristic is a part of.
+  /// - Returns: A publisher that sends the value that is read from the desired characteristic.
+  public func readValue(forCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Data?, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .flatMap { characteristic in
+        self.readValue(for: characteristic)
+      }
+      .eraseToAnyPublisher()
+  }
+
+  /// Writes the given data to the characteristic with the given UUID in the service in the given UUID
+  /// - Parameters:
+  ///   - value: The data to write
+  ///   - writeType: How to write the data
+  ///   - characteristicUUID: the id of the characteristic
+  ///   - serviceUUID: the service the characteristic exists within
+  /// - Returns: A publisher that finishes immediately with no output if the write type is without response, or with a `Void` value if the the write type is with response, when we are told that the write completed. Completes with an error if the write fails, if the write type is unsupported.
+  public func writeValue(_ value: Data, writeType: CBCharacteristicWriteType, forCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Void, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .flatMap { characteristic in
+        self.writeValue(value, for: characteristic, type: writeType)
+      }
+      .eraseToAnyPublisher()
+  }
+
+  /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic.
+  /// - Parameter characteristic: The characteristic to listen to for updates.
+  /// - Returns: A publisher that will listen to updates to the given characteristic. Continues indefinitely, unless an error is encountered.
+  public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
+    didUpdateValueForCharacteristic
+    // not limiting to `.first()` here as callers may want long-lived listening for value changes
+      .filter({ (readCharacteristic, error) -> Bool in
+        return readCharacteristic.uuid == characteristic.uuid
+      })
+      .tryMap {
+        if let error = $1 { throw error }
+        return $0.value
+      }
+      .eraseToAnyPublisher()
+  }
 }
+
+// MARK: -
 
 extension Peripheral {
   public class Delegate: NSObject {
+    var cbperipheral: CBPeripheral?
+
+    public init(_ cbperipheral: CBPeripheral? = nil) {
+      self.cbperipheral = cbperipheral
+    }
+
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
     let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()
