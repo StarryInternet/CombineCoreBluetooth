@@ -230,10 +230,8 @@ extension Publisher {
           continuation.yield(value)
         }
       )
-      let onTermination = cancellable.cancel
-
       continuation.onTermination = { @Sendable _ in
-        onTermination()
+        cancellable.cancel()
       }
     }
   }

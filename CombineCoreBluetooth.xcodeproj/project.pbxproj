@@ -30,7 +30,6 @@
 		EB443FC527C6BDE10005CCEA /* Mock+Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FAB27C6BDE00005CCEA /* Mock+Peripheral.swift */; };
 		EB443FC627C6BDE10005CCEA /* Interface+Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FAC27C6BDE00005CCEA /* Interface+Peripheral.swift */; };
 		EB443FC727C6BDE10005CCEA /* Live+Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FAD27C6BDE00005CCEA /* Live+Peripheral.swift */; };
-		EB443FC827C6BDE10005CCEA /* Convenience+Peripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FAE27C6BDE00005CCEA /* Convenience+Peripheral.swift */; };
 		EB443FC927C6BDE10005CCEA /* Mock+Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB027C6BDE00005CCEA /* Mock+Central.swift */; };
 		EB443FCA27C6BDE10005CCEA /* Live+Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB127C6BDE00005CCEA /* Live+Central.swift */; };
 		EB443FCB27C6BDE10005CCEA /* Interface+Central.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB227C6BDE00005CCEA /* Interface+Central.swift */; };
@@ -79,7 +78,6 @@
 		EB443FAB27C6BDE00005CCEA /* Mock+Peripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Mock+Peripheral.swift"; sourceTree = "<group>"; };
 		EB443FAC27C6BDE00005CCEA /* Interface+Peripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Interface+Peripheral.swift"; sourceTree = "<group>"; };
 		EB443FAD27C6BDE00005CCEA /* Live+Peripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Live+Peripheral.swift"; sourceTree = "<group>"; };
-		EB443FAE27C6BDE00005CCEA /* Convenience+Peripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Convenience+Peripheral.swift"; sourceTree = "<group>"; };
 		EB443FB027C6BDE00005CCEA /* Mock+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Mock+Central.swift"; sourceTree = "<group>"; };
 		EB443FB127C6BDE00005CCEA /* Live+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Live+Central.swift"; sourceTree = "<group>"; };
 		EB443FB227C6BDE00005CCEA /* Interface+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Interface+Central.swift"; sourceTree = "<group>"; };
@@ -224,7 +222,6 @@
 				EB443FAB27C6BDE00005CCEA /* Mock+Peripheral.swift */,
 				EB443FAC27C6BDE00005CCEA /* Interface+Peripheral.swift */,
 				EB443FAD27C6BDE00005CCEA /* Live+Peripheral.swift */,
-				EB443FAE27C6BDE00005CCEA /* Convenience+Peripheral.swift */,
 			);
 			path = Peripheral;
 			sourceTree = "<group>";
@@ -442,7 +439,6 @@
 				EB443FBF27C6BDE10005CCEA /* AdvertisementData.swift in Sources */,
 				EB443FCC27C6BDE10005CCEA /* Live+CentralManager.swift in Sources */,
 				EB443FC627C6BDE10005CCEA /* Interface+Peripheral.swift in Sources */,
-				EB443FC827C6BDE10005CCEA /* Convenience+Peripheral.swift in Sources */,
 				EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */,
 				EB443FCB27C6BDE10005CCEA /* Interface+Central.swift in Sources */,
 				EB443FC427C6BDE10005CCEA /* Live+PeripheralManager.swift in Sources */,
