@@ -14,6 +14,7 @@
 		00371A0227EE588C00C2F766 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00371A0127EE588C00C2F766 /* Preview Assets.xcassets */; };
 		00371A2327F02B1900C2F766 /* CentralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00371A2227F02B1900C2F766 /* CentralView.swift */; };
 		00482BE828308A4D0053B7C1 /* PeripheralTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00482BE728308A4D0053B7C1 /* PeripheralTests.swift */; };
+		00CF0B78288DD73700FD88E1 /* PeripheralError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CF0B77288DD73700FD88E1 /* PeripheralError.swift */; };
 		EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9C27C6BDE00005CCEA /* Exports.swift */; };
 		EB443FBA27C6BDE10005CCEA /* PassthroughBacked.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9D27C6BDE00005CCEA /* PassthroughBacked.swift */; };
 		EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */; };
@@ -60,6 +61,7 @@
 		00371A0127EE588C00C2F766 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		00371A2227F02B1900C2F766 /* CentralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralView.swift; sourceTree = "<group>"; };
 		00482BE728308A4D0053B7C1 /* PeripheralTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralTests.swift; sourceTree = "<group>"; };
+		00CF0B77288DD73700FD88E1 /* PeripheralError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralError.swift; sourceTree = "<group>"; };
 		EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CombineCoreBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB443F9927C6BDE00005CCEA /* CombineCoreBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CombineCoreBluetooth.h; sourceTree = "<group>"; };
 		EB443F9C27C6BDE00005CCEA /* Exports.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exports.swift; sourceTree = "<group>"; };
@@ -196,11 +198,12 @@
 		EB443FA027C6BDE00005CCEA /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				EB443FA127C6BDE00005CCEA /* L2CAPChannel.swift */,
-				EB443FA227C6BDE00005CCEA /* ATTRequest.swift */,
 				EB443FA327C6BDE00005CCEA /* AdvertisementData.swift */,
-				EB443FA427C6BDE00005CCEA /* PeripheralDiscovery.swift */,
+				EB443FA227C6BDE00005CCEA /* ATTRequest.swift */,
+				EB443FA127C6BDE00005CCEA /* L2CAPChannel.swift */,
 				EB443FA527C6BDE00005CCEA /* Peer.swift */,
+				EB443FA427C6BDE00005CCEA /* PeripheralDiscovery.swift */,
+				00CF0B77288DD73700FD88E1 /* PeripheralError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -446,6 +449,7 @@
 				EB443FC927C6BDE10005CCEA /* Mock+Central.swift in Sources */,
 				EB443FCE27C6BDE10005CCEA /* Mock+CentralManager.swift in Sources */,
 				EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */,
+				00CF0B78288DD73700FD88E1 /* PeripheralError.swift in Sources */,
 				EB443FBD27C6BDE10005CCEA /* L2CAPChannel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
