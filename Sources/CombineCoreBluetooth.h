@@ -7,5 +7,3 @@ FOUNDATION_EXPORT double CombineCoreBluetoothVersionNumber;
 FOUNDATION_EXPORT const unsigned char CombineCoreBluetoothVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <CombineCoreBluetooth/PublicHeader.h>
-
-
