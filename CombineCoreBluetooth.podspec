@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = 'CombineCoreBluetooth'
-  spec.version = '0.3.1'
+  spec.version = '0.4.0'
   spec.summary = 'A wrapper API for CoreBluetooth using Combine Publishers.'
   spec.homepage = 'https://github.com/StarryInternet/CombineCoreBluetooth'
   spec.author = { 'Kevin Lundberg' => 'klundberg@starry.com' }
