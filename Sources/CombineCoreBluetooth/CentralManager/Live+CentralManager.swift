@@ -52,20 +52,20 @@ extension CentralManager {
           delegate.didFailToConnectPeripheral
             .filter { p, _ in p == peripheral }
             .tryMap { p, error in
-              throw CentralManagerError.failedToConnect(p, error as NSError?)
+              throw CentralManagerError.failedToConnect(error as NSError?)
             }
         )
         .prefix(1)
         .handleEvents(receiveSubscription: { _ in
-          centralManager.connect(peripheral.delegate!.cbperipheral!, options: options?.dictionary)
+          centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
         }, receiveCancel: {
-          centralManager.cancelPeripheralConnection(peripheral.delegate!.cbperipheral!)
+          centralManager.cancelPeripheralConnection(peripheral.rawValue!)
         })
         .shareCurrentValue()
         .eraseToAnyPublisher()
       },
       _cancelPeripheralConnection: { (peripheral) in
-        centralManager.cancelPeripheralConnection(peripheral.delegate!.cbperipheral!)
+        centralManager.cancelPeripheralConnection(peripheral.rawValue!)
       },
       _registerForConnectionEvents: {
         #if os(macOS) && !targetEnvironment(macCatalyst)
