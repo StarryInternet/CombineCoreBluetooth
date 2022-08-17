@@ -3,6 +3,7 @@ import CoreBluetooth
 
 /// The `CombineCoreBluetooth` wrapper around `CBPeripheral`.
 public struct Peripheral {
+  let rawValue: CBPeripheral?
   let delegate: Delegate?
 
   var _name: () -> String?
@@ -359,12 +360,6 @@ public struct Peripheral {
 
 extension Peripheral {
   public class Delegate: NSObject {
-    var cbperipheral: CBPeripheral?
-
-    public init(_ cbperipheral: CBPeripheral? = nil) {
-      self.cbperipheral = cbperipheral
-    }
-
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
     let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()

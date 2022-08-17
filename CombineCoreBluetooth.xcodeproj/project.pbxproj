@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0014FFB227F0359600D2A122 /* CombineCoreBluetooth in Frameworks */ = {isa = PBXBuildFile; productRef = 0014FFB127F0359600D2A122 /* CombineCoreBluetooth */; };
+		0023587228ACBF3300E42C0B /* CentralManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0023587128ACBF3300E42C0B /* CentralManagerError.swift */; };
 		003719FB27EE588900C2F766 /* PeripheralDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003719FA27EE588900C2F766 /* PeripheralDemoApp.swift */; };
 		003719FD27EE588900C2F766 /* PeripheralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003719FC27EE588900C2F766 /* PeripheralView.swift */; };
 		003719FF27EE588C00C2F766 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003719FE27EE588C00C2F766 /* Assets.xcassets */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		0014FFB027F032C000D2A122 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0023587128ACBF3300E42C0B /* CentralManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralManagerError.swift; sourceTree = "<group>"; };
 		003719F827EE588900C2F766 /* CentralPeripheralDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CentralPeripheralDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		003719FA27EE588900C2F766 /* PeripheralDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralDemoApp.swift; sourceTree = "<group>"; };
 		003719FC27EE588900C2F766 /* PeripheralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralView.swift; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 			children = (
 				EB443FA327C6BDE00005CCEA /* AdvertisementData.swift */,
 				EB443FA227C6BDE00005CCEA /* ATTRequest.swift */,
+				0023587128ACBF3300E42C0B /* CentralManagerError.swift */,
 				EB443FA127C6BDE00005CCEA /* L2CAPChannel.swift */,
 				EB443FA527C6BDE00005CCEA /* Peer.swift */,
 				EB443FA427C6BDE00005CCEA /* PeripheralDiscovery.swift */,
@@ -426,6 +429,7 @@
 			files = (
 				EB443FCF27C6BDE10005CCEA /* Convenience+CentralManager.swift in Sources */,
 				EB443FCD27C6BDE10005CCEA /* Interface+CentralManager.swift in Sources */,
+				0023587228ACBF3300E42C0B /* CentralManagerError.swift in Sources */,
 				EB443FC127C6BDE10005CCEA /* Peer.swift in Sources */,
 				EB443FC327C6BDE10005CCEA /* Mock+PeripheralManager.swift in Sources */,
 				EB443FC227C6BDE10005CCEA /* Interface+PeripheralManager.swift in Sources */,

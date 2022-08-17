@@ -5,9 +5,9 @@ extension Peripheral {
   public init(cbperipheral: CBPeripheral) {
     let delegate = cbperipheral.delegate as? Delegate ?? Delegate()
     cbperipheral.delegate = delegate
-    delegate.cbperipheral = cbperipheral
 
     self.init(
+      rawValue: cbperipheral,
       delegate: delegate,
       _name: { cbperipheral.name },
       _identifier: { cbperipheral.identifier },

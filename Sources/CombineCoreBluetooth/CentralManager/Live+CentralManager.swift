@@ -2,10 +2,6 @@ import Combine
 import CoreBluetooth
 import Foundation
 
-enum CentralManagerError: Error, Equatable {
-  case failedToConnect(Peripheral, NSError?)
-}
-
 extension CentralManager {
   public static func live(_ options: CreationOptions? = nil) -> Self {
     let delegate = Delegate()

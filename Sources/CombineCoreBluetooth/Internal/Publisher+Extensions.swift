@@ -23,10 +23,17 @@ extension Publisher {
   /// Applies the predicate to the first item in the Output's tuple; if it matches, take the first element from that and pass it along or throw any errors that are present.
   func filterFirstValueOrThrow<Value>(where predicate: @escaping (Value, Error?) -> Bool) -> AnyPublisher<Value, Error> where Output == (Value, Error?) {
     first(where: predicate)
-      .tryMap { value, error in
-        if let error = error { throw error }
-        return value
-      }
+      .selectValueOrThrowError()
       .eraseToAnyPublisher()
+  }
+
+  func selectValueOrThrowError<Value>() -> AnyPublisher<Value, Error> where Output == (Value, Error?) {
+    tryMap { value, error in
+      if let error = error {
+        throw error
+      }
+      return value
+    }
+    .eraseToAnyPublisher()
   }
 }
