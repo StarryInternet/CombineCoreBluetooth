@@ -303,6 +303,7 @@ extension Peripheral {
     invalidatedServiceUpdates: AnyPublisher<[CBService], Never> = fail("invalidatedServiceUpdates")
   ) -> Peripheral {
     Peripheral(
+      rawValue: nil,
       delegate: nil,
       _name: { name },
       _identifier: { identifier },
