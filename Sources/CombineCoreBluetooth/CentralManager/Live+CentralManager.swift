@@ -11,13 +11,14 @@ extension CentralManager {
       options: options?.dictionary
     )
     
-    #if os(macOS) && !targetEnvironment(macCatalyst)
+#if os(macOS) && !targetEnvironment(macCatalyst)
     func supportsFeatures<A>(_ feature: Never) -> A {}
-    #else
+#else
     let supportsFeatures = CBCentralManager.supports
-    #endif
-
+#endif
+    
     return Self.init(
+      delegate: delegate,
       _state: { centralManager.state },
       _authorization: {
         if #available(iOS 13.1, *) {
@@ -35,54 +36,31 @@ extension CentralManager {
         centralManager.retrieveConnectedPeripherals(withServices: serviceIDs).map(Peripheral.init(cbperipheral:))
       },
       _scanForPeripheralsWithServices: { services, options in
-        delegate.didDiscoverPeripheral
-          .handleEvents(receiveSubscription: { _ in
-            centralManager.scanForPeripherals(withServices: services, options: options?.dictionary)
-          }, receiveCancel: {
-            centralManager.stopScan()
-          })
-          .shareCurrentValue()
-          .eraseToAnyPublisher()
+        centralManager.scanForPeripherals(withServices: services, options: options?.dictionary)
       },
+      _stopScan: centralManager.stopScan,
       _connectToPeripheral: { (peripheral, options) in
-        Publishers.Merge(
-          delegate.didConnectPeripheral
-            .filter { $0 == peripheral }
-            .setFailureType(to: Error.self),
-          delegate.didFailToConnectPeripheral
-            .filter { p, _ in p == peripheral }
-            .tryMap { p, error in
-              throw CentralManagerError.failedToConnect(error as NSError?)
-            }
-        )
-        .prefix(1)
-        .handleEvents(receiveSubscription: { _ in
-          centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
-        }, receiveCancel: {
-          centralManager.cancelPeripheralConnection(peripheral.rawValue!)
-        })
-        .shareCurrentValue()
-        .eraseToAnyPublisher()
+        centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
       },
       _cancelPeripheralConnection: { (peripheral) in
         centralManager.cancelPeripheralConnection(peripheral.rawValue!)
       },
       _registerForConnectionEvents: {
-        #if os(macOS) && !targetEnvironment(macCatalyst)
+#if os(macOS) && !targetEnvironment(macCatalyst)
         fatalError("This method is not callable on native macOS")
-        #else
+#else
         centralManager.registerForConnectionEvents(options: $0)
-        #endif
+#endif
       },
-
-      didUpdateState: delegate.didUpdateState,
-      willRestoreState: delegate.willRestoreState,
-      didConnectPeripheral: delegate.didConnectPeripheral,
-      didFailToConnectPeripheral: delegate.didFailToConnectPeripheral,
-      didDisconnectPeripheral: delegate.didDisconnectPeripheral,
-      connectionEventDidOccur: delegate.connectionEventDidOccur,
-      didDiscoverPeripheral: delegate.didDiscoverPeripheral,
-      didUpdateACNSAuthorizationForPeripheral: delegate.didUpdateACNSAuthorizationForPeripheral
+      
+      didUpdateState: delegate.didUpdateState.eraseToAnyPublisher(),
+      willRestoreState: delegate.willRestoreState.eraseToAnyPublisher(),
+      didConnectPeripheral: delegate.didConnectPeripheral.eraseToAnyPublisher(),
+      didFailToConnectPeripheral: delegate.didFailToConnectPeripheral.eraseToAnyPublisher(),
+      didDisconnectPeripheral: delegate.didDisconnectPeripheral.eraseToAnyPublisher(),
+      connectionEventDidOccur: delegate.connectionEventDidOccur.eraseToAnyPublisher(),
+      didDiscoverPeripheral: delegate.didDiscoverPeripheral.eraseToAnyPublisher(),
+      didUpdateACNSAuthorizationForPeripheral: delegate.didUpdateACNSAuthorizationForPeripheral.eraseToAnyPublisher()
     )
   }
 }
@@ -116,58 +94,44 @@ extension CentralManager.PeripheralConnectionOptions {
   }
 }
 
-extension CentralManager {
-  class Delegate: NSObject, CBCentralManagerDelegate {
-    @PassthroughBacked var didUpdateState: AnyPublisher<CBManagerState, Never>
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-      _didUpdateState.send(central.state)
-    }
-
-    @PassthroughBacked var willRestoreState: AnyPublisher<[String: Any], Never>
-    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-      _willRestoreState.send(dict)
-    }
-
-    @PassthroughBacked var didConnectPeripheral: AnyPublisher<Peripheral, Never>
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-      _didConnectPeripheral.send(Peripheral(cbperipheral: peripheral))
-    }
-
-    @PassthroughBacked var didFailToConnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-      _didFailToConnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
-    }
-
-    @PassthroughBacked var didDisconnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-      _didDisconnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
-    }
-
-    #if os(iOS) || os(tvOS) || os(watchOS)
-    @PassthroughBacked var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never>
-    func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
-      _connectionEventDidOccur.send((event, Peripheral(cbperipheral: peripheral)))
-    }
-    #else
-    var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never> = Empty().eraseToAnyPublisher()
-    #endif
-
-    @PassthroughBacked var didDiscoverPeripheral: AnyPublisher<PeripheralDiscovery, Never>
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-      _didDiscoverPeripheral.send(
-        PeripheralDiscovery(
-          peripheral: Peripheral(cbperipheral: peripheral),
-          advertisementData: AdvertisementData(advertisementData),
-          rssi: RSSI.doubleValue
-        )
-      )
-    }
-
-    @PassthroughBacked var didUpdateACNSAuthorizationForPeripheral: AnyPublisher<Peripheral, Never>
-    #if os(iOS) || os(tvOS) || os(watchOS)
-    func centralManager(_ central: CBCentralManager, didUpdateANCSAuthorizationFor peripheral: CBPeripheral) {
-      _didUpdateACNSAuthorizationForPeripheral.send(Peripheral(cbperipheral: peripheral))
-    }
-    #endif
+extension CentralManager.Delegate: CBCentralManagerDelegate {
+  func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    didUpdateState.send(central.state)
   }
+  
+  func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
+    willRestoreState.send(dict)
+  }
+  
+  func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    didConnectPeripheral.send(Peripheral(cbperipheral: peripheral))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    didFailToConnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    didDisconnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    didDiscoverPeripheral.send(
+      PeripheralDiscovery(
+        peripheral: Peripheral(cbperipheral: peripheral),
+        advertisementData: AdvertisementData(advertisementData),
+        rssi: RSSI.doubleValue
+      )
+    )
+  }
+  
+#if os(iOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+  func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
+    connectionEventDidOccur.send((event, Peripheral(cbperipheral: peripheral)))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didUpdateANCSAuthorizationFor peripheral: CBPeripheral) {
+    didUpdateACNSAuthorizationForPeripheral.send(Peripheral(cbperipheral: peripheral))
+  }
+#endif
 }

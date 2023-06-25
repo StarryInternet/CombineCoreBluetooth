@@ -55,15 +55,15 @@ extension Peripheral {
 }
 
 extension Peripheral.Delegate: CBPeripheralDelegate {
-  public func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
+  func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
     nameUpdates.send(peripheral.name)
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+  func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
     didInvalidateServices.send(invalidatedServices)
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
     if let error = error {
       didReadRSSI.send(.failure(error))
     } else {
@@ -71,47 +71,47 @@ extension Peripheral.Delegate: CBPeripheralDelegate {
     }
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
     didDiscoverServices.send((peripheral.services ?? [], error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
     didDiscoverIncludedServices.send((service, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
     didDiscoverCharacteristics.send((service, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
     didUpdateValueForCharacteristic.send((characteristic, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
     didWriteValueForCharacteristic.send((characteristic, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
     didUpdateNotificationState.send((characteristic, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
     didDiscoverDescriptorsForCharacteristic.send((characteristic, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
     didUpdateValueForDescriptor.send((descriptor, error))
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
     didWriteValueForDescriptor.send((descriptor, error))
   }
 
-  public func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
+  func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
     isReadyToSendWriteWithoutResponse.send()
   }
 
-  public func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
+  func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
     didOpenChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
   }
 }

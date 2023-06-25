@@ -10,9 +10,9 @@ extension CentralManager {
     supportsFeatures: @escaping (Feature) -> Bool = Internal._unimplemented("supportsFeatures"),
     retrievePeripheralsWithIdentifiers: @escaping ([UUID]) -> [Peripheral] = Internal._unimplemented("retrievePeripheralsWithIdentifiers"),
     retrieveConnectedPeripheralsWithServices: @escaping ([CBUUID]) -> [Peripheral] = Internal._unimplemented("retrieveConnectedPeripheralsWithServices"),
-    scanForPeripheralsWithServices: @escaping ([CBUUID]?, ScanOptions?) -> AnyPublisher<PeripheralDiscovery, Never> = Internal._unimplemented("scanForPeripheralsWithServices"),
+    scanForPeripheralsWithServices: @escaping ([CBUUID]?, ScanOptions?) -> Void = Internal._unimplemented("scanForPeripheralsWithServices"),
     stopScanForPeripherals: @escaping () -> Void = Internal._unimplemented("stopScanForPeripherals"),
-    connectToPeripheral: @escaping (Peripheral, PeripheralConnectionOptions?) -> AnyPublisher<Peripheral, Error> = Internal._unimplemented("connectToPeripheral"),
+    connectToPeripheral: @escaping (Peripheral, PeripheralConnectionOptions?) -> Void = Internal._unimplemented("connectToPeripheral"),
     cancelPeripheralConnection: @escaping (Peripheral) -> Void = Internal._unimplemented("cancelPeripheralConnection"),
     registerForConnectionEvents: @escaping ([CBConnectionEventMatchingOption : Any]?) -> Void = Internal._unimplemented("registerForConnectionEvents"),
 
@@ -28,6 +28,7 @@ extension CentralManager {
     didUpdateACNSAuthorizationForPeripheral: AnyPublisher<Peripheral, Never> = Internal._unimplemented("didUpdateACNSAuthorizationForPeripheral")
   ) -> Self {
     return Self(
+      delegate: nil,
       _state: state,
       _authorization: authorization,
       _isScanning: isScanning,
@@ -35,6 +36,7 @@ extension CentralManager {
       _retrievePeripheralsWithIdentifiers: retrievePeripheralsWithIdentifiers,
       _retrieveConnectedPeripheralsWithServices: retrieveConnectedPeripheralsWithServices,
       _scanForPeripheralsWithServices: scanForPeripheralsWithServices,
+      _stopScan: stopScanForPeripherals,
       _connectToPeripheral: connectToPeripheral,
       _cancelPeripheralConnection: cancelPeripheralConnection,
       _registerForConnectionEvents: registerForConnectionEvents,

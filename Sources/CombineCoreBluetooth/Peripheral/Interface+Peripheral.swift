@@ -12,7 +12,6 @@ public struct Peripheral {
   var _services: () -> [CBService]?
   var _canSendWriteWithoutResponse: () -> Bool
 
-  @available(macOS, unavailable)
   var _ancsAuthorized: () -> Bool
 
   var _readRSSI: () -> Void
@@ -359,7 +358,7 @@ public struct Peripheral {
 // MARK: -
 
 extension Peripheral {
-  public class Delegate: NSObject {
+  class Delegate: NSObject {
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
     let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()

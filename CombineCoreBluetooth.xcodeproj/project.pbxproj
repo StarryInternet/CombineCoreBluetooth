@@ -37,7 +37,6 @@
 		EB443FCC27C6BDE10005CCEA /* Live+CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */; };
 		EB443FCD27C6BDE10005CCEA /* Interface+CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB527C6BDE00005CCEA /* Interface+CentralManager.swift */; };
 		EB443FCE27C6BDE10005CCEA /* Mock+CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB627C6BDE00005CCEA /* Mock+CentralManager.swift */; };
-		EB443FCF27C6BDE10005CCEA /* Convenience+CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB727C6BDE00005CCEA /* Convenience+CentralManager.swift */; };
 		EB443FDD27C6C1940005CCEA /* CombineCoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */; };
 		EB443FE627C6C1B40005CCEA /* CentralManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FE527C6C1B40005CCEA /* CentralManagerTests.swift */; };
 /* End PBXBuildFile section */
@@ -83,10 +82,9 @@
 		EB443FB027C6BDE00005CCEA /* Mock+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Mock+Central.swift"; sourceTree = "<group>"; };
 		EB443FB127C6BDE00005CCEA /* Live+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Live+Central.swift"; sourceTree = "<group>"; };
 		EB443FB227C6BDE00005CCEA /* Interface+Central.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Interface+Central.swift"; sourceTree = "<group>"; };
-		EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Live+CentralManager.swift"; sourceTree = "<group>"; };
-		EB443FB527C6BDE00005CCEA /* Interface+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Interface+CentralManager.swift"; sourceTree = "<group>"; };
+		EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = "Live+CentralManager.swift"; sourceTree = "<group>"; tabWidth = 2; };
+		EB443FB527C6BDE00005CCEA /* Interface+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = "Interface+CentralManager.swift"; sourceTree = "<group>"; tabWidth = 2; };
 		EB443FB627C6BDE00005CCEA /* Mock+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Mock+CentralManager.swift"; sourceTree = "<group>"; };
-		EB443FB727C6BDE00005CCEA /* Convenience+CentralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Convenience+CentralManager.swift"; sourceTree = "<group>"; };
 		EB443FD127C6BE440005CCEA /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/CoreBluetooth.framework; sourceTree = DEVELOPER_DIR; };
 		EB443FD327C6BE5A0005CCEA /* Combine.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Combine.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/Combine.framework; sourceTree = DEVELOPER_DIR; };
 		EB443FD927C6C1940005CCEA /* CombineCoreBluetooth Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CombineCoreBluetooth Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,7 +148,9 @@
 				EB443F8F27C6BCA70005CCEA /* Products */,
 				EB443FD027C6BE440005CCEA /* Frameworks */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
 		};
 		EB443F8F27C6BCA70005CCEA /* Products */ = {
 			isa = PBXGroup;
@@ -245,7 +245,6 @@
 				EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */,
 				EB443FB527C6BDE00005CCEA /* Interface+CentralManager.swift */,
 				EB443FB627C6BDE00005CCEA /* Mock+CentralManager.swift */,
-				EB443FB727C6BDE00005CCEA /* Convenience+CentralManager.swift */,
 			);
 			path = CentralManager;
 			sourceTree = "<group>";
@@ -427,7 +426,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB443FCF27C6BDE10005CCEA /* Convenience+CentralManager.swift in Sources */,
 				EB443FCD27C6BDE10005CCEA /* Interface+CentralManager.swift in Sources */,
 				0023587228ACBF3300E42C0B /* CentralManagerError.swift in Sources */,
 				EB443FC127C6BDE10005CCEA /* Peer.swift in Sources */,
