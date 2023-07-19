@@ -24,7 +24,6 @@ extension Publisher {
   func filterFirstValueOrThrow<Value>(where predicate: @escaping (Value, Error?) -> Bool) -> AnyPublisher<Value, Error> where Output == (Value, Error?) {
     first(where: predicate)
       .selectValueOrThrowError()
-      .eraseToAnyPublisher()
   }
 
   func selectValueOrThrowError<Value>() -> AnyPublisher<Value, Error> where Output == (Value, Error?) {
@@ -35,5 +34,9 @@ extension Publisher {
       return value
     }
     .eraseToAnyPublisher()
+  }
+  
+  func setOutputType<T>(to type: T.Type) -> Publishers.Map<Self, T> where Output == Never {
+    map { _ -> T in }
   }
 }

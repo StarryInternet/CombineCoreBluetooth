@@ -80,7 +80,6 @@ public struct Peripheral {
         _readRSSI()
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func discoverServices(_ serviceUUIDs: [CBUUID]?) -> AnyPublisher<[CBService], Error> {
@@ -98,7 +97,6 @@ public struct Peripheral {
         _discoverServices(serviceUUIDs)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func discoverIncludedServices(_ serviceUUIDS: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBService]?, Error> {
@@ -119,7 +117,6 @@ public struct Peripheral {
         _discoverIncludedServices(serviceUUIDS, service)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func discoverCharacteristics(_ characteristicUUIDs: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBCharacteristic], Error> {
@@ -140,7 +137,6 @@ public struct Peripheral {
         _discoverCharacteristics(characteristicUUIDs, service)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
@@ -153,7 +149,6 @@ public struct Peripheral {
         _readValueForCharacteristic(characteristic)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func maximumWriteValueLength(for writeType: CBCharacteristicWriteType) -> Int {
@@ -202,7 +197,6 @@ public struct Peripheral {
        _writeValueForCharacteristic(value, characteristic, .withResponse)
      })
      .shareCurrentValue()
-     .eraseToAnyPublisher()
   }
 
   public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
@@ -215,7 +209,6 @@ public struct Peripheral {
         _setNotifyValue(enabled, characteristic)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func discoverDescriptors(for characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error> {
@@ -228,7 +221,6 @@ public struct Peripheral {
         _discoverDescriptors(characteristic)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
@@ -241,7 +233,6 @@ public struct Peripheral {
         _readValueForDescriptor(descriptor)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
@@ -254,7 +245,6 @@ public struct Peripheral {
         _writeValueForDescriptor(value, descriptor)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   public func openL2CAPChannel(_ psm: CBL2CAPPSM) -> AnyPublisher<L2CAPChannel, Error> {
@@ -268,7 +258,6 @@ public struct Peripheral {
         _openL2CAPChannel(psm)
       })
       .shareCurrentValue()
-      .eraseToAnyPublisher()
   }
 
   // MARK: - Convenience methods
@@ -339,6 +328,9 @@ public struct Peripheral {
   }
 
   /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic.
+  ///
+  /// This function does not subscribe to notifications or indications on its own.
+  ///
   /// - Parameter characteristic: The characteristic to listen to for updates.
   /// - Returns: A publisher that will listen to updates to the given characteristic. Continues indefinitely, unless an error is encountered.
   public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
@@ -347,11 +339,36 @@ public struct Peripheral {
       .filter({ (readCharacteristic, error) -> Bool in
         return readCharacteristic.uuid == characteristic.uuid
       })
-      .tryMap {
-        if let error = $1 { throw error }
-        return $0.value
-      }
+      .selectValueOrThrowError()
+      .map(\.value)
       .eraseToAnyPublisher()
+  }
+  
+  /// Subscribes to an update on the given characteristic, and if subscription succeeds, the returned publisher receives all updates to that characteristic until the subscriptions to this publisher are cancelled.
+  ///
+  /// If the characteristic doesn't support notifications or indications, the publisher will fail with an error.
+  /// - Parameter characteristic: The characteristic to subscribe to
+  /// - Returns: A publisher that is sent updates to the given characteristic's value.
+  public func subscribeToUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
+    Publishers.Merge(
+      self.listenForUpdates(on: characteristic),
+      
+      didUpdateNotificationState
+        .filterFirstValueOrThrow(where: {
+          $0.uuid == characteristic.uuid
+        })
+        .ignoreOutput()
+        .setOutputType(to: Data?.self)
+    )
+    .handleEvents(
+      receiveSubscription: { _ in
+        _setNotifyValue(true, characteristic)
+      },
+      receiveCancel: {
+        _setNotifyValue(false, characteristic)
+      }
+    )
+    .shareCurrentValue()
   }
 }
 

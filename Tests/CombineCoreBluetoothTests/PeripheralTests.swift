@@ -178,6 +178,70 @@ class PeripheralTests: XCTestCase {
     let outputs2 = try p2.discoverIncludedServices(nil, for: service.includedServices!.first!).waitForCompletion()
     XCTAssertEqual(outputs2, [nil])
   }
+  
+  // MARK: - Characteristics
+  
+  func testSubscribeToCharacteristicWorks() {
+    let c = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.read, .notify], value: nil, permissions: [.readEncryptionRequired])
+    
+    let subject = PassthroughSubject<(Data?, Error?), Never>()
+    var notifyValues: [Bool] = []
+    
+    let p = Peripheral.failing(
+      setNotifyValue: { notifyValue, characteristic in notifyValues.append(notifyValue) },
+      didUpdateValueForCharacteristic: subject
+        .map {
+          c.value = $0
+          return (c, $1)
+        }
+        .eraseToAnyPublisher(),
+      didUpdateNotificationState: Just((c, nil)).eraseToAnyPublisher()
+    )
+    
+    var values: [Data?] = []
+    let cancellable = p.subscribeToUpdates(on: c).sink { cancellable in
+      if case let .failure(error) = cancellable {
+        XCTFail("\(error)")
+      }
+    } receiveValue: {
+      values.append($0)
+    }
+    XCTAssertEqual(notifyValues, [true])
+    
+    subject.send((Data("a".utf8), nil))
+    subject.send((Data("b".utf8), nil))
+    cancellable.cancel()
+    // test that cancellation unsubscribes to the characteristic
+    XCTAssertEqual(notifyValues, [true, false])
+    
+    XCTAssertEqual(values, [Data("a".utf8), Data("b".utf8)])
+  }
+  
+  func testSubscribeToCharacteristicFailsWhenSetNotifyValueFails() {
+    let c = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.read, .notify], value: nil, permissions: [.readEncryptionRequired])
+    
+    var notifyValues: [Bool] = []
+    
+    struct SomeError: Error {}
+    
+    let p = Peripheral.failing(
+      setNotifyValue: { notifyValue, characteristic in notifyValues.append(notifyValue) },
+      didUpdateValueForCharacteristic: Empty().eraseToAnyPublisher(),
+      didUpdateNotificationState: Just((c, SomeError())).eraseToAnyPublisher()
+    )
+    
+    var values: [Data?] = []
+    let cancellable = p.subscribeToUpdates(on: c).sink { cancellable in
+      if case .finished = cancellable {
+        XCTFail("Expected a failure")
+      }
+    } receiveValue: {
+      values.append($0)
+    }
+    XCTAssertEqual(notifyValues, [true])
+    XCTAssertEqual(values, [])
+    cancellable.cancel()
+  }
 }
 
 // MARK: -
@@ -239,31 +303,31 @@ extension Publisher {
 
 extension Peripheral {
 
-  static func fail(_ name: String) -> Void {
-    XCTFail("\(name) called when no implementation is provided")
+  static func fail(_ name: String, file: StaticString = #file, line: UInt = #line) -> Void {
+    XCTFail("\(name) called when no implementation is provided", file: file, line: line)
   }
 
   @_disfavoredOverload
-  static func fail(_ name: String) -> () -> Void {
-    { fail(name) }
+  static func fail(_ name: String, file: StaticString = #file, line: UInt = #line) -> () -> Void {
+    { fail(name, file: file, line: line) }
   }
 
-  static func fail<A>(_ name: String) -> (A) -> Void {
-    { _ in fail(name) }
+  static func fail<A>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A) -> Void {
+    { _ in fail(name, file: file, line: line) }
   }
 
-  static func fail<A,B>(_ name: String) -> (A,B) -> Void {
-    { _, _ in fail(name) }
+  static func fail<A,B>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A,B) -> Void {
+    { _, _ in fail(name, file: file, line: line) }
   }
 
-  static func fail<A,B,C>(_ name: String) -> (A,B,C) -> Void {
-    { _, _, _ in fail(name) }
+  static func fail<A,B,C>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A,B,C) -> Void {
+    { _, _, _ in fail(name, file: file, line: line) }
   }
 
-  static func fail<Output, Failure: Error>(_ name: String) -> AnyPublisher<Output, Failure> {
+  static func fail<Output, Failure: Error>(_ name: String, file: StaticString = #file, line: UInt = #line) -> AnyPublisher<Output, Failure> {
     Empty()
       .handleEvents(
-        receiveSubscription: { _ in XCTFail("\(name) subscribed to when no implementation is provided") }
+        receiveSubscription: { _ in XCTFail("\(name) subscribed to when no implementation is provided", file: file, line: line) }
       )
       .eraseToAnyPublisher()
   }

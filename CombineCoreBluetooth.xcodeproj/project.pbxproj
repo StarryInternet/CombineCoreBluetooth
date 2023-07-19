@@ -213,8 +213,8 @@
 			isa = PBXGroup;
 			children = (
 				EB443FA727C6BDE00005CCEA /* Interface+PeripheralManager.swift */,
-				EB443FA827C6BDE00005CCEA /* Mock+PeripheralManager.swift */,
 				EB443FA927C6BDE00005CCEA /* Live+PeripheralManager.swift */,
+				EB443FA827C6BDE00005CCEA /* Mock+PeripheralManager.swift */,
 			);
 			path = PeripheralManager;
 			sourceTree = "<group>";
@@ -222,9 +222,9 @@
 		EB443FAA27C6BDE00005CCEA /* Peripheral */ = {
 			isa = PBXGroup;
 			children = (
-				EB443FAB27C6BDE00005CCEA /* Mock+Peripheral.swift */,
 				EB443FAC27C6BDE00005CCEA /* Interface+Peripheral.swift */,
 				EB443FAD27C6BDE00005CCEA /* Live+Peripheral.swift */,
+				EB443FAB27C6BDE00005CCEA /* Mock+Peripheral.swift */,
 			);
 			path = Peripheral;
 			sourceTree = "<group>";
@@ -232,9 +232,9 @@
 		EB443FAF27C6BDE00005CCEA /* Central */ = {
 			isa = PBXGroup;
 			children = (
-				EB443FB027C6BDE00005CCEA /* Mock+Central.swift */,
-				EB443FB127C6BDE00005CCEA /* Live+Central.swift */,
 				EB443FB227C6BDE00005CCEA /* Interface+Central.swift */,
+				EB443FB127C6BDE00005CCEA /* Live+Central.swift */,
+				EB443FB027C6BDE00005CCEA /* Mock+Central.swift */,
 			);
 			path = Central;
 			sourceTree = "<group>";
@@ -242,8 +242,8 @@
 		EB443FB327C6BDE00005CCEA /* CentralManager */ = {
 			isa = PBXGroup;
 			children = (
-				EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */,
 				EB443FB527C6BDE00005CCEA /* Interface+CentralManager.swift */,
+				EB443FB427C6BDE00005CCEA /* Live+CentralManager.swift */,
 				EB443FB627C6BDE00005CCEA /* Mock+CentralManager.swift */,
 			);
 			path = CentralManager;
