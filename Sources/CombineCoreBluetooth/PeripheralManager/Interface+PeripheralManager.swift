@@ -71,9 +71,25 @@ public struct PeripheralManager {
     _respondToRequest(request, result)
   }
 
-  @discardableResult
-  public func updateValue(_ value: Data, for characteristic: CBMutableCharacteristic, onSubscribedCentrals centrals: [Central]?) -> Bool {
-    _updateValueForCharacteristic(value, characteristic, centrals)
+  public func updateValue(_ value: Data, for characteristic: CBMutableCharacteristic, onSubscribedCentrals centrals: [Central]?) -> AnyPublisher<Void, Error> {
+    func update(retries: Int, _ value: Data, _ characteristic: CBMutableCharacteristic, _ centrals: [Central]?) -> AnyPublisher<Void, Error> {
+      let success = _updateValueForCharacteristic(value, characteristic, centrals)
+      if success {
+        return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+      } else {
+        if retries == 0 {
+          return Fail(error: PeripheralManagerError.failedToUpdateCharacteristic(characteristic.uuid)).eraseToAnyPublisher()
+        } else {
+          return readyToUpdateSubscribers.first()
+            .setFailureType(to: Error.self)
+            .flatMap { _ in
+              update(retries: retries-1, value, characteristic, centrals)
+            }
+            .eraseToAnyPublisher()
+        }
+      }
+    }
+    return update(retries: 4, value, characteristic, centrals)
   }
 
   public func publishL2CAPChannel(withEncryption encryptionRequired: Bool) {
