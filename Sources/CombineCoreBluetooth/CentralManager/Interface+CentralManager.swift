@@ -172,6 +172,7 @@ public struct CentralManager {
     }
   }
   
+  @objc(CCBCentralManagerDelegate)
   class Delegate: NSObject {
     let didUpdateState: PassthroughSubject<CBManagerState, Never> = .init()
     let willRestoreState: PassthroughSubject<[String: Any], Never> = .init()

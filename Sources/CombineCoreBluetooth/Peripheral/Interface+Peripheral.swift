@@ -458,6 +458,7 @@ public struct Peripheral {
 // MARK: -
 
 extension Peripheral {
+  @objc(CCBPeripheralDelegate)
   class Delegate: NSObject {
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()

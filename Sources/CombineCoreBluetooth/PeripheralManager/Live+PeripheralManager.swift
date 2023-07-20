@@ -59,6 +59,7 @@ extension PeripheralManager {
 }
 
 extension PeripheralManager {
+  @objc(CCBPeripheralManagerDelegate)
   class Delegate: NSObject, CBPeripheralManagerDelegate {
     @PassthroughBacked var didUpdateState: AnyPublisher<CBManagerState, Never>
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
