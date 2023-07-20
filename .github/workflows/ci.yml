@@ -24,7 +24,7 @@ jobs:
       - name: Run tests
         run: swift test --skip-build
       - name: Pod lint
-        run: pod lib lint --quick
+        run: pod lib lint
       - name: Verify Carthage
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
