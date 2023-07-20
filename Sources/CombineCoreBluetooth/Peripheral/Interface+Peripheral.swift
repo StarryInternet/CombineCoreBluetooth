@@ -309,6 +309,7 @@ public struct Peripheral {
       .flatMap { characteristic in
         self.readValue(for: characteristic)
       }
+      .first()
       .eraseToAnyPublisher()
   }
 
@@ -326,8 +327,75 @@ public struct Peripheral {
       }
       .eraseToAnyPublisher()
   }
+  
+  
+  /// Discovers all descriptors on the given characteristic in the given service.
+  /// - Parameters:
+  ///   - characteristicUUID: The id of the characteristic whose descriptors we want to discover.
+  ///   - serviceUUID: The id of the service containing the characteristic whose descriptors we want to discover.
+  /// - Returns: A publisher that outputs the descriptors for the given characteristic and then finishes. May fail with an error if the characteristic or service aren't discovered, or if the service doesn't contain a characteristic with the given ID, or in other cases.
+  public func discoverDescriptors(onCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<[CBDescriptor]?, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .flatMap { self.discoverDescriptors(for: $0) }
+      .first()
+      .eraseToAnyPublisher()
+  }
+  
+  /// Discovers all descriptors on the given characteristic in the given service, and sends the descriptor with the desired ID into the returned publisher.
+  /// - Parameters:
+  ///   - id: The id of the desired descriptor
+  ///   - characteristicUUID: The id of the characteristic whose descriptors we want to discover.
+  ///   - serviceUUID: The id of the service containing the characteristic whose descriptors we want to discover.
+  /// - Returns: A publisher that outputs the desired descriptor on the given characteristic and then finishes. May fail with an error if the characteristic does not contain a descriptor with the given ID, the characteristic or service aren't discovered, or if the service doesn't contain a characteristic with the given ID, or in other cases.
+  public func discoverDescriptor(id: CBUUID, onCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<CBDescriptor, Error> {
+    discoverDescriptors(onCharacteristic: characteristicUUID, inService: serviceUUID)
+      .tryMap { descriptors in
+        guard let descriptor = descriptors?.first(where: { d in d.uuid == id }) else {
+          throw PeripheralError.descriptorNotFound(id, onCharacteristic: characteristicUUID)
+        }
+        return descriptor
+      }
+      .eraseToAnyPublisher()
+  }
+  
+  /// Reads the value from the desired descriptor.
+  /// - Parameters:
+  ///   - id: The id of the desired descriptor
+  ///   - characteristicUUID: The id of the characteristic that contains the desired descriptor.
+  ///   - serviceUUID: The id of the service containing the characteristic that contains the desired descriptor.
+  /// - Returns: A publisher that will output the value of the desired descriptor, or which will fail if it somehow cannot find that descriptor.
+  public func readValue(forDescriptor id: CBUUID, onCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Any?, Error> {
+    discoverDescriptor(id: id, onCharacteristic: characteristicUUID, inService: serviceUUID)
+      .flatMap { descriptor in
+        self.readValue(for: descriptor)
+      }
+      .first()
+      .eraseToAnyPublisher()
+  }
+  
+  /// Writes the given data to the descriptor specified by the given IDs.
+  /// - Parameters:
+  ///   - value: The value to write
+  ///   - id: The id of the desired descriptor
+  ///   - characteristicUUID: The id of the characteristic that contains the desired descriptor.
+  ///   - serviceUUID: The id of the service containing the characteristic that contains the desired descriptor.
+  /// - Returns: A publisher that completes if the write succeeded, or fails if the descriptor/characteristic/service is not found, or if the write fails.
+  public func writeValue(_ value: Data, forDescriptor id: CBUUID, onCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Void, Error> {
+    discoverDescriptors(onCharacteristic: characteristicUUID, inService: serviceUUID)
+      .tryMap { descriptors in
+        guard let descriptor = (descriptors ?? []).first(where: { d in d.uuid == id }) else {
+          throw PeripheralError.descriptorNotFound(id, onCharacteristic: characteristicUUID)
+        }
+        return descriptor
+      }
+      .flatMap {
+        self.writeValue(value, for: $0)
+      }
+      .first()
+      .eraseToAnyPublisher()
+  }
 
-  /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic.
+  /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic's value changing.
   ///
   /// This function does not subscribe to notifications or indications on its own.
   ///
@@ -341,6 +409,21 @@ public struct Peripheral {
       })
       .selectValueOrThrowError()
       .map(\.value)
+      .eraseToAnyPublisher()
+  }
+  
+  /// Returns a long-lived publisher that receives all value updates for the characteristic with the given id in the service with the given id. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic.
+  ///
+  /// This function does not subscribe to notifications or indications on its own.
+  ///
+  /// - Parameters:
+  ///   - characteristicUUID: The ID that identifies the characteristic to listen for.
+  ///   - serviceUUID: The ID that identifies the service that contains the desired characteristic.
+  /// - Returns: A publisher that will listen to updates to the given characteristic. Continues indefinitely, unless an error is encountered.
+  public func listenForUpdates(onCharacteristic characteristicUUID: CBUUID, inService serviceUUID: CBUUID) -> AnyPublisher<Data?, Error> {
+    discoverCharacteristic(withUUID: characteristicUUID, inServiceWithUUID: serviceUUID)
+      .first()
+      .flatMap { self.listenForUpdates(on: $0) }
       .eraseToAnyPublisher()
   }
   
