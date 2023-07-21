@@ -43,10 +43,28 @@ public struct PeripheralManager {
     _isAdvertising()
   }
 
-  public func startAdvertising(_ advertisementData: AdvertisementData?) {
-    _startAdvertising(advertisementData)
+  public func startAdvertising(_ advertisementData: AdvertisementData?) -> AnyPublisher<Void, Error> {
+    Publishers.Merge(
+      didUpdateState,
+      // the act of checking state here will trigger core bluetooth to turn the radio on so that it eventually becomes `poweredOn` later in `didUpdateState`
+      [state].publisher
+    )
+    .first(where: { $0 == .poweredOn })
+    .flatMap { _ in
+      // once powered on, we can begin advertising. Do so once this flatmap'd publisher is subscribed to, so we don't start too soon.
+      didStartAdvertising
+        .handleEvents(receiveSubscription: { _ in
+          _startAdvertising(advertisementData)
+        })
+    }
+    .tryMap { error in
+      if let error = error {
+        throw error
+      }
+    }
+    .eraseToAnyPublisher()
   }
-
+  
   public func stopAdvertising() {
     _stopAdvertising()
   }
@@ -92,11 +110,24 @@ public struct PeripheralManager {
     return update(retries: 4, value, characteristic, centrals)
   }
 
-  public func publishL2CAPChannel(withEncryption encryptionRequired: Bool) {
-    _publishL2CAPChannel(encryptionRequired)
+  public func publishL2CAPChannel(withEncryption encryptionRequired: Bool) -> AnyPublisher<CBL2CAPPSM, Error> {
+    didPublishL2CAPChannel
+      .handleEvents(receiveSubscription: { _ in
+        _publishL2CAPChannel(encryptionRequired)
+      })
+      .first()
+      .selectValueOrThrowError()
+      .shareCurrentValue()
+      .eraseToAnyPublisher()
   }
 
-  public func unpublishL2CAPChannel(_ PSM: CBL2CAPPSM) {
-    _unpublishL2CAPChannel(PSM)
+  public func unpublishL2CAPChannel(_ PSM: CBL2CAPPSM) -> AnyPublisher<CBL2CAPPSM, Error> {
+    didUnpublishL2CAPChannel
+      .filterFirstValueOrThrow(where: { $0 == PSM })
+      .handleEvents(receiveSubscription: { _ in
+        _unpublishL2CAPChannel(PSM)
+      })
+      .shareCurrentValue()
+      .eraseToAnyPublisher()
   }
 }
