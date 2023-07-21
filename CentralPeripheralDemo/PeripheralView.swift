@@ -31,7 +31,8 @@ class PeripheralDemo: ObservableObject {
         }).joined(separator: "\n"), to: &self.logs)
 
         self.peripheralManager.respond(to: requests[0], withResult: .success)
-      }.store(in: &cancellables)
+      }
+      .store(in: &cancellables)
   }
 
   func buildServices() {
@@ -65,20 +66,15 @@ class PeripheralDemo: ObservableObject {
   }
 
   func start() {
-    if peripheralManager.state == .poweredOn {
-      buildServices()
-      peripheralManager.startAdvertising(.init([.serviceUUIDs: [CBUUID.service]]))
-      advertising = true
-    } else {
-      // once bt is powered on, advertise
-      peripheralManager.didUpdateState
-        .first(where: { $0 == .poweredOn })
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] _ in
-          self?.start()
-        }
-        .store(in: &cancellables)
-    }
+    buildServices()
+      
+    peripheralManager.startAdvertising(.init([.serviceUUIDs: [CBUUID.service]]))
+      .sink(receiveCompletion: { c in
+        
+      }, receiveValue: { [weak self] _ in
+        self?.advertising = true
+      })
+      .store(in: &cancellables)
   }
 
   func stop() {

@@ -40,6 +40,7 @@
 		EB443FCE27C6BDE10005CCEA /* Mock+CentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FB627C6BDE00005CCEA /* Mock+CentralManager.swift */; };
 		EB443FDD27C6C1940005CCEA /* CombineCoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */; };
 		EB443FE627C6C1B40005CCEA /* CentralManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443FE527C6C1B40005CCEA /* CentralManagerTests.swift */; };
+		ED2D6EAF2A6A159D008BD1A2 /* PeripheralManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2D6EAE2A6A159D008BD1A2 /* PeripheralManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 		EB443FD327C6BE5A0005CCEA /* Combine.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Combine.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/Combine.framework; sourceTree = DEVELOPER_DIR; };
 		EB443FD927C6C1940005CCEA /* CombineCoreBluetooth Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CombineCoreBluetooth Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB443FE527C6C1B40005CCEA /* CentralManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralManagerTests.swift; sourceTree = "<group>"; };
+		ED2D6EAE2A6A159D008BD1A2 /* PeripheralManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeripheralManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -273,6 +275,7 @@
 			isa = PBXGroup;
 			children = (
 				EB443FE527C6C1B40005CCEA /* CentralManagerTests.swift */,
+				ED2D6EAE2A6A159D008BD1A2 /* PeripheralManagerTests.swift */,
 				00482BE728308A4D0053B7C1 /* PeripheralTests.swift */,
 			);
 			path = CombineCoreBluetoothTests;
@@ -462,6 +465,7 @@
 			files = (
 				EB443FE627C6C1B40005CCEA /* CentralManagerTests.swift in Sources */,
 				00482BE828308A4D0053B7C1 /* PeripheralTests.swift in Sources */,
+				ED2D6EAF2A6A159D008BD1A2 /* PeripheralManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

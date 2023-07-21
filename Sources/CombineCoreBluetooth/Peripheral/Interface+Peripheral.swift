@@ -440,8 +440,7 @@ public struct Peripheral {
         .filterFirstValueOrThrow(where: {
           $0.uuid == characteristic.uuid
         })
-        .ignoreOutput()
-        .setOutputType(to: Data?.self)
+        .ignoreOutput(setOutputType: Data?.self)
     )
     .handleEvents(
       receiveSubscription: { _ in

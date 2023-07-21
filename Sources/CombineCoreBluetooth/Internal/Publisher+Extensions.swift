@@ -36,7 +36,7 @@ extension Publisher {
     .eraseToAnyPublisher()
   }
   
-  func setOutputType<T>(to type: T.Type) -> Publishers.Map<Self, T> where Output == Never {
-    map { _ -> T in }
+  func ignoreOutput<NewOutput>(setOutputType newOutputType: NewOutput.Type) -> Publishers.Map<Publishers.IgnoreOutput<Self>, NewOutput> {
+    ignoreOutput().map { _ -> NewOutput in }
   }
 }

@@ -2,7 +2,6 @@ import XCTest
 @testable import CombineCoreBluetooth
 
 final class PeripheralManagerTests: XCTestCase {
-  
   var cancellables: Set<AnyCancellable>!
   
   override func setUpWithError() throws {
