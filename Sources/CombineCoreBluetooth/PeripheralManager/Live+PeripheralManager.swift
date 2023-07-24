@@ -1,18 +1,19 @@
 import Foundation
 
 extension PeripheralManager {
-  public static var live: Self {
+  public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
     let delegate = Delegate()
-    #if os(tvOS) || os(watchOS)
+#if os(tvOS) || os(watchOS)
     let peripheralManager = CBPeripheralManager()
     peripheralManager.delegate = delegate
-    #else
+#else
     let peripheralManager = CBPeripheralManager(
       delegate: delegate,
-      queue: DispatchQueue(label: "com.combine-core-bluetooth.peripheral", target: .global())
+      queue: DispatchQueue(label: "com.combine-core-bluetooth.peripheral", target: .global()),
+      options: options?.peripheralManagerDictionary
     )
-    #endif
-
+#endif
+    
     return Self(
       delegate: delegate,
       _state: { peripheralManager.state },
@@ -35,90 +36,75 @@ extension PeripheralManager {
       _remove: peripheralManager.remove(_:),
       _removeAllServices: peripheralManager.removeAllServices,
       _respondToRequest: { (request, result) in
-        peripheralManager.respond(to:request.rawValue!, withResult: result)
+        peripheralManager.respond(to: request.rawValue!, withResult: result)
       },
       _updateValueForCharacteristic: { (data, characteristic, centrals) -> Bool in
         peripheralManager.updateValue(data, for: characteristic, onSubscribedCentrals: centrals?.compactMap(\.rawValue))
       },
       _publishL2CAPChannel: peripheralManager.publishL2CAPChannel(withEncryption:),
       _unpublishL2CAPChannel: peripheralManager.unpublishL2CAPChannel(_:),
-
-      didUpdateState: delegate.didUpdateState,
-      didStartAdvertising: delegate.didStartAdvertising,
-      didAddService: delegate.didAddService,
-      centralDidSubscribeToCharacteristic: delegate.centralDidSubscribeToCharacteristic,
-      centralDidUnsubscribeFromCharacteristic: delegate.centralDidUnsubscribeFromCharacteristic,
-      didReceiveReadRequest: delegate.didReceiveReadRequest,
-      didReceiveWriteRequests: delegate.didReceiveWriteRequests,
-      readyToUpdateSubscribers: delegate.readyToUpdateSubscribers,
-      didPublishL2CAPChannel: delegate.didPublishL2CAPChannel,
-      didUnpublishL2CAPChannel: delegate.didUnpublishL2CAPChannel,
-      didOpenL2CAPChannel: delegate.didOpenL2CAPChannel
+      
+      didUpdateState: delegate.didUpdateState.eraseToAnyPublisher(),
+      didStartAdvertising: delegate.didStartAdvertising.eraseToAnyPublisher(),
+      didAddService: delegate.didAddService.eraseToAnyPublisher(),
+      centralDidSubscribeToCharacteristic: delegate.centralDidSubscribeToCharacteristic.eraseToAnyPublisher(),
+      centralDidUnsubscribeFromCharacteristic: delegate.centralDidUnsubscribeFromCharacteristic.eraseToAnyPublisher(),
+      didReceiveReadRequest: delegate.didReceiveReadRequest.eraseToAnyPublisher(),
+      didReceiveWriteRequests: delegate.didReceiveWriteRequests.eraseToAnyPublisher(),
+      readyToUpdateSubscribers: delegate.readyToUpdateSubscribers.eraseToAnyPublisher(),
+      didPublishL2CAPChannel: delegate.didPublishL2CAPChannel.eraseToAnyPublisher(),
+      didUnpublishL2CAPChannel: delegate.didUnpublishL2CAPChannel.eraseToAnyPublisher(),
+      didOpenL2CAPChannel: delegate.didOpenL2CAPChannel.eraseToAnyPublisher()
     )
   }
 }
 
-extension PeripheralManager {
-  @objc(CCBPeripheralManagerDelegate)
-  class Delegate: NSObject, CBPeripheralManagerDelegate {
-    @PassthroughBacked var didUpdateState: AnyPublisher<CBManagerState, Never>
-    public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-      _didUpdateState.send(peripheral.state)
-    }
-
-    @PassthroughBacked var willRestoreState: AnyPublisher<[String: Any], Never>
-    func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
-      _willRestoreState.send(dict)
-    }
-
-    @PassthroughBacked var didStartAdvertising: AnyPublisher<Error?, Never>
-    public func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
-      _didStartAdvertising.send(error)
-    }
-
-    @PassthroughBacked var didAddService: AnyPublisher<(CBService, Error?), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-      _didAddService.send((service, error))
-    }
-
-    @PassthroughBacked var centralDidSubscribeToCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-      _centralDidSubscribeToCharacteristic.send((.init(cbcentral: central), characteristic))
-    }
-
-    @PassthroughBacked var centralDidUnsubscribeFromCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-      _centralDidUnsubscribeFromCharacteristic.send((.init(cbcentral: central), characteristic))
-    }
-
-    @PassthroughBacked var didReceiveReadRequest: AnyPublisher<ATTRequest, Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-      _didReceiveReadRequest.send(.init(cbattrequest: request))
-    }
-
-    @PassthroughBacked var didReceiveWriteRequests: AnyPublisher<[ATTRequest], Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-      _didReceiveWriteRequests.send(requests.map(ATTRequest.init(cbattrequest:)))
-    }
-
-    @PassthroughBacked var readyToUpdateSubscribers: AnyPublisher<Void, Never>
-    public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-      _readyToUpdateSubscribers.send()
-    }
-
-    @PassthroughBacked var didPublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didPublishL2CAPChannel PSM: CBL2CAPPSM, error: Error?) {
-      _didPublishL2CAPChannel.send((PSM, error))
-    }
-
-    @PassthroughBacked var didUnpublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didUnpublishL2CAPChannel PSM: CBL2CAPPSM, error: Error?) {
-      _didUnpublishL2CAPChannel.send((PSM, error))
-    }
-
-    @PassthroughBacked var didOpenL2CAPChannel: AnyPublisher<(L2CAPChannel?, Error?), Never>
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: Error?) {
-      _didOpenL2CAPChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
-    }
+extension PeripheralManager.Delegate: CBPeripheralManagerDelegate {
+  func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+    didUpdateState.send(peripheral.state)
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
+    willRestoreState.send(dict)
+  }
+  
+  func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
+    didStartAdvertising.send(error)
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
+    didAddService.send((service, error))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+    centralDidSubscribeToCharacteristic.send((.init(cbcentral: central), characteristic))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+    centralDidUnsubscribeFromCharacteristic.send((.init(cbcentral: central), characteristic))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+    didReceiveReadRequest.send(.init(cbattrequest: request))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+    didReceiveWriteRequests.send(requests.map(ATTRequest.init(cbattrequest:)))
+  }
+  
+  func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+    readyToUpdateSubscribers.send()
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didPublishL2CAPChannel PSM: CBL2CAPPSM, error: Error?) {
+    didPublishL2CAPChannel.send((PSM, error))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didUnpublishL2CAPChannel PSM: CBL2CAPPSM, error: Error?) {
+    didUnpublishL2CAPChannel.send((PSM, error))
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: Error?) {
+    didOpenL2CAPChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
   }
 }

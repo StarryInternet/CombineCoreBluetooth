@@ -112,11 +112,11 @@ public struct PeripheralManager {
 
   public func publishL2CAPChannel(withEncryption encryptionRequired: Bool) -> AnyPublisher<CBL2CAPPSM, Error> {
     didPublishL2CAPChannel
+      .first()
+      .selectValueOrThrowError()
       .handleEvents(receiveSubscription: { _ in
         _publishL2CAPChannel(encryptionRequired)
       })
-      .first()
-      .selectValueOrThrowError()
       .shareCurrentValue()
       .eraseToAnyPublisher()
   }
@@ -129,5 +129,23 @@ public struct PeripheralManager {
       })
       .shareCurrentValue()
       .eraseToAnyPublisher()
+  }
+}
+
+extension PeripheralManager {
+  @objc(CCBPeripheralManagerDelegate)
+  class Delegate: NSObject {
+    var didUpdateState:                          PassthroughSubject<CBManagerState, Never>              = .init()
+    var willRestoreState:                        PassthroughSubject<[String: Any], Never>               = .init()
+    var didStartAdvertising:                     PassthroughSubject<Error?, Never>                      = .init()
+    var didAddService:                           PassthroughSubject<(CBService, Error?), Never>         = .init()
+    var centralDidSubscribeToCharacteristic:     PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
+    var centralDidUnsubscribeFromCharacteristic: PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
+    var didReceiveReadRequest:                   PassthroughSubject<ATTRequest, Never>                  = .init()
+    var didReceiveWriteRequests:                 PassthroughSubject<[ATTRequest], Never>                = .init()
+    var readyToUpdateSubscribers:                PassthroughSubject<Void, Never>                        = .init()
+    var didPublishL2CAPChannel:                  PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
+    var didUnpublishL2CAPChannel:                PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
+    var didOpenL2CAPChannel:                     PassthroughSubject<(L2CAPChannel?, Error?), Never>     = .init()
   }
 }

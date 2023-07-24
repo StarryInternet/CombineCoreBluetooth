@@ -16,10 +16,10 @@ extension CBUUID {
 }
 
 class PeripheralDemo: ObservableObject {
-  let peripheralManager = PeripheralManager.live
+  let peripheralManager = PeripheralManager.live()
   @Published var logs: String = ""
-  var cancellables = Set<AnyCancellable>()
   @Published var advertising: Bool = false
+  var cancellables = Set<AnyCancellable>()
 
   init() {
     peripheralManager.didReceiveWriteRequests

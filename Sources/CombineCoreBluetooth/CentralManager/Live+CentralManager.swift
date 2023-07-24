@@ -3,12 +3,12 @@ import CoreBluetooth
 import Foundation
 
 extension CentralManager {
-  public static func live(_ options: CreationOptions? = nil) -> Self {
+  public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
     let delegate = Delegate()
     let centralManager = CBCentralManager(
       delegate: delegate,
       queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global()),
-      options: options?.dictionary
+      options: options?.centralManagerDictionary
     )
     
 #if os(macOS) && !targetEnvironment(macCatalyst)
@@ -62,15 +62,6 @@ extension CentralManager {
       didDiscoverPeripheral: delegate.didDiscoverPeripheral.eraseToAnyPublisher(),
       didUpdateACNSAuthorizationForPeripheral: delegate.didUpdateACNSAuthorizationForPeripheral.eraseToAnyPublisher()
     )
-  }
-}
-
-extension CentralManager.CreationOptions {
-  var dictionary: [String: Any] {
-    var dict: [String: Any] = [:]
-    dict[CBCentralManagerOptionShowPowerAlertKey] = showPowerAlert
-    dict[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifierKey
-    return dict
   }
 }
 
