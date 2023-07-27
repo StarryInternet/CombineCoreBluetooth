@@ -20,13 +20,23 @@ extension L2CAPChannel {
     } else {
       peer = AnyPeer(channel.peer)
     }
-
+    
     self.init(
       rawValue: channel,
       peer: peer,
       inputStream: channel.inputStream,
       outputStream: channel.outputStream,
       psm: channel.psm
+    )
+  }
+  
+  public init(peer: Peer, inputStream: InputStream, outputStream: OutputStream, psm: CBL2CAPPSM) {
+    self.init(
+      rawValue: nil,
+      peer: peer,
+      inputStream: inputStream,
+      outputStream: outputStream,
+      psm: psm
     )
   }
 }

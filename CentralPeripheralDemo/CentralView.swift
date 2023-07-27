@@ -14,7 +14,6 @@ class CentralDemo: ObservableObject {
   var scanTask: AnyCancellable?
   @Published var peripheralConnectResult: Result<Peripheral, Error>?
   @Published var scanning: Bool = false
-  var cancellables: Set<AnyCancellable> = []
 
   var connectedPeripheral: Peripheral? {
     guard case let .success(value) = peripheralConnectResult else { return nil }
@@ -36,13 +35,13 @@ class CentralDemo: ObservableObject {
       .sink(receiveValue: { [weak self] in
         self?.peripherals = $0
       })
-    self.scanning = centralManager.isScanning
+    scanning = centralManager.isScanning
   }
 
   func stopSearching() {
     scanTask = nil
     peripherals = []
-    self.scanning = centralManager.isScanning
+    scanning = centralManager.isScanning
   }
 
   func connect(_ discovery: PeripheralDiscovery) {
