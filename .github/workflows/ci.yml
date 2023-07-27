@@ -56,7 +56,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=tvOS Simulator,OS=16.2,name=Apple TV" \
+           -destination "platform=tvOS Simulator,OS=16.1,name=Apple TV" \
            -sdk appletvsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \

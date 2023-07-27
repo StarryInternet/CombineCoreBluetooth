@@ -1,6 +1,7 @@
 import XCTest
 @testable import CombineCoreBluetooth
 
+#if !os(watchOS) && !os(tvOS)
 final class PeripheralManagerTests: XCTestCase {
   var cancellables: Set<AnyCancellable>!
   
@@ -16,6 +17,7 @@ final class PeripheralManagerTests: XCTestCase {
   
   func testUpdateValueSuccessCase() throws {
     let characteristic = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.notify], value: nil, permissions: [.readable])
+
     let central = Central.unimplemented(identifier: .init(), maximumUpdateValueLength: { 512 })
     let peripheralManager = PeripheralManager.unimplemented(
       updateValueForCharacteristic: { _, _, _ in true },
@@ -89,3 +91,4 @@ final class PeripheralManagerTests: XCTestCase {
     XCTAssert(complete)
   }
 }
+#endif
