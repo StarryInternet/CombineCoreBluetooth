@@ -14,11 +14,15 @@ on:
       - "**.podspec"
       - ".github/workflows/*"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-mac:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build
         run: swift build --build-tests
       - name: Run tests
@@ -29,12 +33,46 @@ jobs:
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
   build-ios:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
-      - uses: actions/checkout@v2
-      - name: Build
+      - uses: actions/checkout@v3
+      - name: Test
         run: |
-          swift build -Xswiftc "-sdk" \
-           -Xswiftc `xcrun --sdk iphonesimulator --show-sdk-path` \
-           -Xswiftc "-target" \
-           -Xswiftc "x86_64-apple-ios`xcrun --show-sdk-version --sdk iphonesimulator`-simulator"
+          set -o pipefail && xcodebuild \
+           -scheme CombineCoreBluetooth \
+           -workspace ./CombineCoreBluetooth.xcworkspace/ \
+           -destination "platform=iOS Simulator,OS=16.2,name=iPhone 14" \
+           -sdk iphonesimulator \
+           -enableCodeCoverage YES \
+           -disableAutomaticPackageResolution \
+           test | xcpretty -c
+
+  build-tvos:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: |
+          set -o pipefail && xcodebuild \
+           -scheme CombineCoreBluetooth \
+           -workspace ./CombineCoreBluetooth.xcworkspace/ \
+           -destination "platform=tvOS Simulator,OS=16.1,name=Apple TV" \
+           -sdk appletvsimulator \
+           -enableCodeCoverage YES \
+           -disableAutomaticPackageResolution \
+           test | xcpretty -c
+
+  build-watchos:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: |
+          set -o pipefail && xcodebuild \
+           -scheme CombineCoreBluetooth \
+           -workspace ./CombineCoreBluetooth.xcworkspace/ \
+           -destination "platform=watchOS Simulator,OS=9.1,name=Apple Watch Ultra (49mm)" \
+           -sdk watchsimulator \
+           -enableCodeCoverage YES \
+           -disableAutomaticPackageResolution \
+           test | xcpretty -c

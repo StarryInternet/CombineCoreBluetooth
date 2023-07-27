@@ -8,6 +8,7 @@
 @testable import CombineCoreBluetooth
 import XCTest
 
+#if !os(watchOS) && !os(tvOS)
 class PeripheralTests: XCTestCase {
 
   override func setUpWithError() throws {
@@ -406,3 +407,4 @@ extension Peripheral {
     )
   }
 }
+#endif
