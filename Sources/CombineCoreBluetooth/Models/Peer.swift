@@ -8,11 +8,18 @@ public protocol Peer {
 extension Peripheral: Peer {}
 extension Central: Peer {}
 
-/// Type erased `Peer` for `CBPeer`s that (by some chance) are neither `Central`s nor `Peripheral`s.
-struct AnyPeer: Peer {
-  let identifier: UUID
-
+/// Wrapper for `CBPeer`s that (by some chance) are neither `Central`s nor `Peripheral`s.
+public struct AnyPeer: Peer {
+  public let identifier: UUID
+  let rawValue: CBPeer?
+  
+  public init(identifier: UUID) {
+    self.identifier = identifier
+    self.rawValue = nil
+  }
+  
   init(_ cbpeer: CBPeer) {
     self.identifier = cbpeer.identifier
+    self.rawValue = cbpeer
   }
 }
