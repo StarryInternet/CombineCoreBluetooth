@@ -259,7 +259,7 @@ public struct Peripheral {
       })
       .shareCurrentValue()
   }
-
+  
   // MARK: - Convenience methods
 
   /// Discovers the service with the given service UUID, then discovers characteristics with the given UUIDs and returns those.

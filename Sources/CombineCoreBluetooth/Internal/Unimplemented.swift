@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Internal {
+public enum _Internal {
   public static func _unimplemented<Output>(
     _ function: StaticString, file: StaticString = #file, line: UInt = #line
   ) -> () -> Output {
