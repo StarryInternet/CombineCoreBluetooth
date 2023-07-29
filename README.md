@@ -77,5 +77,3 @@ The publisher returned in `readValue` will only send values that match the servi
 ## Caveats
 
 All major types from `CoreBluetooth` should be available in this library, wrapped in their own types to provide the `Combine`-centric API. This library has been tested in production for most `CentralManager` related operations. Apps acting as bluetooth peripherals are also supported using the `PeripheralManager` type, but that side hasn't been as rigorously tested.
-
-As of version 0.2, all write characteristic operations expect a response even if those characteristics are not specified by the peripheral to respond on write completion; this means that the publisher will never complete if you attempt to write to characteristics that don't respond. Until this is changed, you are responsible for managing the lifetime of publishers for writeable characteristics with these properties
