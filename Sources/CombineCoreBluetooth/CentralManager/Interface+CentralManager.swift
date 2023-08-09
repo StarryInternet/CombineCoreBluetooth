@@ -90,8 +90,8 @@ public struct CentralManager {
           .setFailureType(to: Error.self),
         didFailToConnectPeripheral
           .filter { p, _ in p == peripheral }
-          .tryMap { p, error in
-            throw CentralManagerError.failedToConnect(error as NSError?)
+          .tryMap { _, error in
+            throw error ?? CentralManagerError.unknownConnectionFailure
           }
       )
       .prefix(1)
