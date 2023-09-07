@@ -10,24 +10,24 @@ import CoreBluetooth
 import Combine
 
 protocol MockCentralDelegate: AnyObject {
-    func mockCentralManagerAuthorizationRequest(centralManager: MockCentral) async -> CBManagerAuthorization
-    func mockCentralManagerNotAuthorized(centralManager: MockCentral) -> Void
+    func mockCentralManagerAuthorizationRequest(centralManager: MockCentralManager) async -> CBManagerAuthorization
+    func mockCentralManagerNotAuthorized(centralManager: MockCentralManager) -> Void
 }
 
 private class MockCentralDelegateDefaultImplementation: MockCentralDelegate {
-    func mockCentralManagerAuthorizationRequest(centralManager: MockCentral) async -> CBManagerAuthorization {
+    func mockCentralManagerAuthorizationRequest(centralManager: MockCentralManager) async -> CBManagerAuthorization {
         return .allowedAlways
     }
-    func mockCentralManagerNotAuthorized(centralManager: MockCentral) {
+    func mockCentralManagerNotAuthorized(centralManager: MockCentralManager) {
         
     }
     static let `default` = MockCentralDelegateDefaultImplementation()
 }
 
-class MockCentral {
+public class MockCentralManager {
     weak var delegate: MockCentralDelegate? = MockCentralDelegateDefaultImplementation.default
     
-    var centralManager: CentralManager!
+    private(set) public var centralManager: CentralManager!
     
     @Published var state: CBManagerState = .unknown
     var authorization: CBManagerAuthorization = .notDetermined
@@ -60,9 +60,11 @@ class MockCentral {
     
     private var advertiserCancellables: Set<AnyCancellable> = []
     
+    public func addPeripherals(peripherals: [MockPeripheral]) {
+        peripherals.forEach(addPeripheral(peripheral:))
+    }
     
-    
-    func addPeripheral(peripheral: MockPeripheral) {
+    public func addPeripheral(peripheral: MockPeripheral) {
         self.addedPeripherals[peripheral.peripheral.identifier] = peripheral
         peripheral
             .$advertiser
@@ -95,7 +97,7 @@ class MockCentral {
         }
     }
     
-    init() {
+    public init() {
         centralManager = .unimplemented(
             state: { self.state },
             authorization: { self.authorization },
@@ -118,10 +120,14 @@ class MockCentral {
                         }
                         self.authorization = result
                         if result == .allowedAlways {
+                            self.scanningForServices = uuids
+                            self.scanningOptions = options
                             self.isScanning = true
                         }
                     }
                 case .allowedAlways:
+                    self.scanningForServices = uuids
+                    self.scanningOptions = options
                     self.isScanning = true
                 default:
                     self.delegate?.mockCentralManagerNotAuthorized(centralManager: self)

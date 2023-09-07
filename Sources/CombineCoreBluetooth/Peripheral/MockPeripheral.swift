@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import CoreBluetooth
 
-typealias AdvertiserPublisher = AnyPublisher<(advertisementData: AdvertisementData, rssi: Double), Never>
+public typealias AdvertiserPublisher = AnyPublisher<(advertisementData: AdvertisementData, rssi: Double), Never>
 
 public protocol MockPeripheralDelegate: AnyObject {
     func mockPeripheralHandleReadValue(forCharacteristic characteristic: CBCharacteristic) async throws -> Data
@@ -45,32 +45,36 @@ public class MockPeripheralDelegateDefaultImplementaton: MockPeripheralDelegate 
 public class MockPeripheral {
     public weak var delegate: MockPeripheralDelegate? = MockPeripheralDelegateDefaultImplementaton.silent
     
-    var peripheral: Peripheral!
+    private(set) public var peripheral: Peripheral!
     
-    static func basicAdvertiser(
+    public static func basicAdvertiser(
         advertisementInterval: TimeInterval = 1,
         advertisementData: AdvertisementData = AdvertisementData(),
         advertisementRSSIGenerator: @escaping (_ eventNumber: Int) -> Double = { _ in Double.random(in: -100...0) }
     ) -> AdvertiserPublisher {
         var eventNumber: Int = 0
-        return Timer.publish(every: advertisementInterval, on: .main, in: .default).map({ _ in
-            eventNumber += 1
-            return (advertisementData, advertisementRSSIGenerator(eventNumber))
-        }).eraseToAnyPublisher()
+        return Timer
+            .publish(every: advertisementInterval, on: .main, in: .default)
+            .autoconnect()
+            .map({ _ in
+                eventNumber += 1
+                return (advertisementData, advertisementRSSIGenerator(eventNumber))
+            })
+            .eraseToAnyPublisher()
     }
-    @Published var advertiser: AdvertiserPublisher = MockPeripheral.basicAdvertiser()
+    @Published public var advertiser: AdvertiserPublisher
     
-    @Published var discoverable = true
-    @Published var connectable = true
+    @Published public var discoverable = true
+    @Published public var connectable = true
     
-    @Published var name: String?
+    @Published public var name: String?
     @Published var state: CBPeripheralState = .disconnected {
         didSet {
             self.discoveredServices = nil
             self.discoveredCharacteristics.removeAll()
         }
     }
-    @Published var services: [CBService]? = nil {
+    @Published public var services: [CBService]? = nil {
         didSet {
             let oldServices = self.discoveredServices
             self.discoveredServices = nil
@@ -79,12 +83,12 @@ public class MockPeripheral {
             }
         }
     }
-    @Published var rssi: Double = 0
-    var advertisementData: AdvertisementData?
-    var maximumWriteWithResponseValueLength = 512
-    var maximumWriteWithoutResponseValueLength = 512
-    @Published var canSendWriteWithoutResponse = true
-    var ancsAuthorized = false
+    @Published public var rssi: Double = 0
+    public var advertisementData: AdvertisementData?
+    public var maximumWriteWithResponseValueLength = 512
+    public var maximumWriteWithoutResponseValueLength = 512
+    @Published public var canSendWriteWithoutResponse = true
+    public var ancsAuthorized = false
     
     private var discoveredServices: [CBService]? = nil
     private var discoveredCharacteristics: [CBService: [CBCharacteristic]] = [:]
@@ -97,12 +101,16 @@ public class MockPeripheral {
     private let invalidatedServicesSubject: any Subject<[CBService], Never> = PassthroughSubject()
     
     
-    func updateValueForCharacteristic(characteristic: CBCharacteristic, value: Data) {
+    public func updateValueForCharacteristic(characteristic: CBCharacteristic, value: Data) {
+        (characteristic as? CBMutableCharacteristic)?.value = value
         didUpdateValueForCharacteristicSubject.send((characteristic, nil))
     }
     
-    init(name: String?, identifier: UUID = UUID()) {
+    let asyncQueue = DispatchQueue.global(qos: .utility)
+    
+    public init(name: String?, identifier: UUID = UUID(), advertiser: AdvertiserPublisher = basicAdvertiser()) {
         self.name = name
+        self.advertiser = advertiser
         peripheral = Peripheral.unimplemented(
         name: name,
         identifier: identifier,
@@ -112,33 +120,37 @@ public class MockPeripheral {
         ancsAuthorized: { self.ancsAuthorized },
         readRSSI: { self.rssi = self.rssi },
         discoverServices: { uuids in
-            if let uuids {
-                if let services = self.services {
-                    let discovered = services.filter({ uuids.contains($0.uuid) })
-                    self.discoveredServices = (discovered + (self.discoveredServices ?? [])).uniqued()
-                    self.didDiscoverServicesSubject.send((discovered, nil))
+            self.asyncQueue.async {
+                if let uuids {
+                    if let services = self.services {
+                        let discovered = services.filter({ uuids.contains($0.uuid) })
+                        self.discoveredServices = (discovered + (self.discoveredServices ?? [])).uniqued()
+                        self.didDiscoverServicesSubject.send((discovered, nil))
+                    } else {
+                        self.discoveredServices = []
+                        self.didDiscoverServicesSubject.send(([], nil))
+                    }
                 } else {
-                    self.discoveredServices = []
-                    self.didDiscoverServicesSubject.send(([], nil))
+                    self.discoveredServices = self.services
+                    self.didDiscoverServicesSubject.send((self.discoveredServices ?? [], nil))
                 }
-            } else {
-                self.discoveredServices = self.services
-                self.didDiscoverServicesSubject.send((self.discoveredServices ?? [], nil))
             }
         },
 //        discoverIncludedServices: <#T##([CBUUID]?, CBService) -> Void#>,
         discoverCharacteristics: { uuids, service in
-            if let uuids {
-                if let characteristics = service.characteristics {
-                    let discovered = characteristics.filter({ uuids.contains($0.uuid) })
-                    self.discoveredCharacteristics[service] = (discovered + (self.discoveredCharacteristics[service] ?? [])).uniqued()
-                    self.didDiscoverCharacteristicsSubject.send((service, nil))
+            self.asyncQueue.async {
+                if let uuids {
+                    if let characteristics = service.characteristics {
+                        let discovered = characteristics.filter({ uuids.contains($0.uuid) })
+                        self.discoveredCharacteristics[service] = (discovered + (self.discoveredCharacteristics[service] ?? [])).uniqued()
+                        self.didDiscoverCharacteristicsSubject.send((service, nil))
+                    } else {
+                        self.discoveredCharacteristics[service] = nil
+                    }
                 } else {
-                    self.discoveredCharacteristics[service] = nil
+                    self.discoveredCharacteristics[service] = service.characteristics
+                    self.didDiscoverCharacteristicsSubject.send((service, nil))
                 }
-            } else {
-                self.discoveredCharacteristics[service] = service.characteristics
-                self.didDiscoverCharacteristicsSubject.send((service, nil))
             }
         },
         readValueForCharacteristic: { characteristic in
@@ -148,8 +160,7 @@ public class MockPeripheral {
                         throw CBATTError(.requestNotSupported)
                     }
                     let data = try await delegate.mockPeripheralHandleReadValue(forCharacteristic: characteristic)
-                    (characteristic as? CBMutableCharacteristic)?.value = data
-                    self.didUpdateValueForCharacteristicSubject.send((characteristic, nil))
+                    self.updateValueForCharacteristic(characteristic: characteristic, value: data)
                 } catch {
                     self.didUpdateValueForCharacteristicSubject.send((characteristic, error))
                 }
