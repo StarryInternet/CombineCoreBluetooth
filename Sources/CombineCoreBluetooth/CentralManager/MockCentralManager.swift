@@ -60,12 +60,15 @@ public class MockCentralManager {
     
     private var advertiserCancellables: Set<AnyCancellable> = []
     
-    public func addPeripherals(peripherals: [MockPeripheral]) {
-        peripherals.forEach(addPeripheral(peripheral:))
+    public func addPeripherals(peripherals: [MockPeripheral], addAsRestorable: Bool = true) {
+        peripherals.forEach({ addPeripheral(peripheral:$0, addAsRestorable: addAsRestorable) })
     }
     
-    public func addPeripheral(peripheral: MockPeripheral) {
+    public func addPeripheral(peripheral: MockPeripheral, addAsRestorable: Bool = true) {
         self.addedPeripherals[peripheral.peripheral.identifier] = peripheral
+        if addAsRestorable {
+            self.knownPeripherals[peripheral.peripheral.identifier] = peripheral.peripheral
+        }
         peripheral
             .$advertiser
             .flatMap({ $0 })
