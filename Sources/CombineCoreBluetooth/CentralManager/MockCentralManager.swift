@@ -29,8 +29,8 @@ public class MockCentralManager {
     
     private(set) public var centralManager: CentralManager!
     
-    @Published var state: CBManagerState = .unknown
-    var authorization: CBManagerAuthorization = .notDetermined
+    @Published public var state: CBManagerState = .unknown
+    public var authorization: CBManagerAuthorization = .notDetermined
     private var scanningForServices: [CBUUID]? = nil
     private var scanningOptions: CentralManager.ScanOptions? = nil
     func shouldSendAdvertisement(peripheral: MockPeripheral) -> Bool {
@@ -41,7 +41,7 @@ public class MockCentralManager {
         guard let scanningForServices else { return true }
         return !Set(scanningForServices).intersection(Set(peripheral.peripheral.services?.map({ $0.uuid }) ?? [])).isEmpty
     }
-    @Published private(set) var isScanning = false
+    @Published public private(set) var isScanning = false
     
     private(set) var addedPeripherals: [UUID: MockPeripheral] = [:]
     private(set) var discoveredPeripherals: [UUID: Peripheral] = [:]
