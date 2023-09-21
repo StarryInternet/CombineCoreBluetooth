@@ -135,12 +135,16 @@ public class MockCentralManager {
             },
             stopScanForPeripherals: { self.isScanning = false },
             connectToPeripheral: { peripheral, options in
-                guard let mock = self.addedPeripherals[peripheral.identifier], self.discoveredPeripherals[peripheral.identifier] != nil else {
-                    self.didFailToConnectPeripheralSubject.send((peripheral, CBError(CBError.unknownDevice)))
+                guard let mock = self.addedPeripherals[peripheral.identifier], self.knownPeripherals[peripheral.identifier] != nil else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.didFailToConnectPeripheralSubject.send((peripheral, CBError(CBError.unknownDevice)))
+                    }
                     return
                 }
                 guard mock.connectable else {
-                    self.didFailToConnectPeripheralSubject.send((peripheral, CBError(CBError.connectionFailed)))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.didFailToConnectPeripheralSubject.send((peripheral, CBError(CBError.connectionFailed)))
+                    }
                     return
                 }
                 guard self.connectedPeripherals[peripheral.identifier] == nil else { return }
