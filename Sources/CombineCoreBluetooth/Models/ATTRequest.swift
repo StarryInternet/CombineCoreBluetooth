@@ -1,7 +1,8 @@
 import Foundation
 import CoreBluetooth
 
-public struct ATTRequest {
+public struct ATTRequest: Hashable, Identifiable {
+  public let id = UUID()
   let rawValue: CBATTRequest?
 
   public let central: Central
@@ -11,6 +12,10 @@ public struct ATTRequest {
     didSet {
       rawValue?.value = value
     }
+  }
+    
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
   }
 }
 
