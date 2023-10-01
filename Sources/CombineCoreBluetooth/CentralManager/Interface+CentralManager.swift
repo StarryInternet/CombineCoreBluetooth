@@ -4,7 +4,13 @@ import Foundation
 
 public struct CentralManager {
 #if os(macOS) && !targetEnvironment(macCatalyst)
-  public typealias Feature = Never
+    public struct Feature : OptionSet, @unchecked Sendable {
+      public var rawValue: UInt
+        
+      public init(rawValue: UInt) {
+        self.rawValue = rawValue
+      }
+  }
 #else
   public typealias Feature = CBCentralManager.Feature
 #endif
@@ -50,11 +56,7 @@ public struct CentralManager {
   
   @available(macOS, unavailable)
   public func supports(_ features: Feature) -> Bool {
-#if os(macOS) && !targetEnvironment(macCatalyst)
-    // do nothing
-#else
     return _supportsFeatures(features)
-#endif
   }
   
   public func retrievePeripherals(withIdentifiers identifiers: [UUID]) -> [Peripheral] {

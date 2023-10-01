@@ -11,11 +11,13 @@ extension CentralManager {
       options: options?.centralManagerDictionary
     )
     
+    func supportsFeatures(_ feature: Feature) -> Bool {
 #if os(macOS) && !targetEnvironment(macCatalyst)
-    func supportsFeatures<A>(_ feature: Never) -> A {}
+        false
 #else
-    let supportsFeatures = CBCentralManager.supports
+        CBCentralManager.supports(feature)
 #endif
+    }
     
     return Self.init(
       delegate: delegate,
