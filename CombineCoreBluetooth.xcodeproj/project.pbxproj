@@ -20,6 +20,9 @@
 		01928ABF2AA724160007510B /* MockCentralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01928ABE2AA724160007510B /* MockCentralManager.swift */; };
 		01928AC12AA724430007510B /* MockPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01928AC02AA724430007510B /* MockPeripheral.swift */; };
 		01928AC32AA725780007510B /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01928AC22AA725780007510B /* Array+Extensions.swift */; };
+		01A1B3CE2AC963E8009B70A3 /* MockPeripheralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1B3CD2AC963E8009B70A3 /* MockPeripheralManager.swift */; };
+		01A1B3D02AC963F4009B70A3 /* MockCentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1B3CF2AC963F4009B70A3 /* MockCentral.swift */; };
+		01A1B3D22AC9644E009B70A3 /* MockDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1B3D12AC9644E009B70A3 /* MockDescriptor.swift */; };
 		EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9C27C6BDE00005CCEA /* Exports.swift */; };
 		EB443FBB27C6BDE10005CCEA /* Publisher+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9E27C6BDE00005CCEA /* Publisher+Extensions.swift */; };
 		EB443FBC27C6BDE10005CCEA /* Unimplemented.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9F27C6BDE00005CCEA /* Unimplemented.swift */; };
@@ -71,6 +74,9 @@
 		01928ABE2AA724160007510B /* MockCentralManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCentralManager.swift; sourceTree = "<group>"; };
 		01928AC02AA724430007510B /* MockPeripheral.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = MockPeripheral.swift; sourceTree = "<group>"; tabWidth = 4; };
 		01928AC22AA725780007510B /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
+		01A1B3CD2AC963E8009B70A3 /* MockPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockPeripheralManager.swift; sourceTree = "<group>"; };
+		01A1B3CF2AC963F4009B70A3 /* MockCentral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockCentral.swift; sourceTree = "<group>"; };
+		01A1B3D12AC9644E009B70A3 /* MockDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockDescriptor.swift; sourceTree = "<group>"; };
 		EB443F8E27C6BCA70005CCEA /* CombineCoreBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CombineCoreBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB443F9927C6BDE00005CCEA /* CombineCoreBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CombineCoreBluetooth.h; sourceTree = "<group>"; };
 		EB443F9C27C6BDE00005CCEA /* Exports.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exports.swift; sourceTree = "<group>"; };
@@ -208,6 +214,7 @@
 		EB443FA027C6BDE00005CCEA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				01A1B3D12AC9644E009B70A3 /* MockDescriptor.swift */,
 				EB443FA327C6BDE00005CCEA /* AdvertisementData.swift */,
 				EB443FA227C6BDE00005CCEA /* ATTRequest.swift */,
 				0023587128ACBF3300E42C0B /* CentralManagerError.swift */,
@@ -226,6 +233,7 @@
 			children = (
 				EB443FA727C6BDE00005CCEA /* Interface+PeripheralManager.swift */,
 				EB443FA927C6BDE00005CCEA /* Live+PeripheralManager.swift */,
+				01A1B3CD2AC963E8009B70A3 /* MockPeripheralManager.swift */,
 				EB443FA827C6BDE00005CCEA /* Unimplemented+PeripheralManager.swift */,
 			);
 			path = PeripheralManager;
@@ -245,6 +253,7 @@
 		EB443FAF27C6BDE00005CCEA /* Central */ = {
 			isa = PBXGroup;
 			children = (
+				01A1B3CF2AC963F4009B70A3 /* MockCentral.swift */,
 				EB443FB227C6BDE00005CCEA /* Interface+Central.swift */,
 				EB443FB127C6BDE00005CCEA /* Live+Central.swift */,
 				EB443FB027C6BDE00005CCEA /* Unimplemented+Central.swift */,
@@ -444,8 +453,10 @@
 				EB443FCD27C6BDE10005CCEA /* Interface+CentralManager.swift in Sources */,
 				ED2D6EB22A6A3409008BD1A2 /* ManagerCreationOptions.swift in Sources */,
 				0023587228ACBF3300E42C0B /* CentralManagerError.swift in Sources */,
+				01A1B3CE2AC963E8009B70A3 /* MockPeripheralManager.swift in Sources */,
 				EB443FC127C6BDE10005CCEA /* Peer.swift in Sources */,
 				EB443FC327C6BDE10005CCEA /* Unimplemented+PeripheralManager.swift in Sources */,
+				01A1B3D22AC9644E009B70A3 /* MockDescriptor.swift in Sources */,
 				EB443FC227C6BDE10005CCEA /* Interface+PeripheralManager.swift in Sources */,
 				EB443FC027C6BDE10005CCEA /* PeripheralDiscovery.swift in Sources */,
 				EB443FCA27C6BDE10005CCEA /* Live+Central.swift in Sources */,
@@ -457,6 +468,7 @@
 				01928ABF2AA724160007510B /* MockCentralManager.swift in Sources */,
 				EB443FBF27C6BDE10005CCEA /* AdvertisementData.swift in Sources */,
 				EB443FCC27C6BDE10005CCEA /* Live+CentralManager.swift in Sources */,
+				01A1B3D02AC963F4009B70A3 /* MockCentral.swift in Sources */,
 				EB443FC627C6BDE10005CCEA /* Interface+Peripheral.swift in Sources */,
 				EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */,
 				EB443FCB27C6BDE10005CCEA /* Interface+Central.swift in Sources */,
