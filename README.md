@@ -48,6 +48,7 @@ This library doesn't maintain any additional state beyond what's needed to enabl
 To scan for a peripheral, much like in plain CoreBluetooth, you call the `scanForPeripherals(withServices:options:)` method. However, on this library's `CentralManager` type, this returns a publisher of `PeripheralDiscovery` values. If you want to store a peripheral for later use, you could subscribe to the returned publisher by doing something like this:
 
 ```swift
+let centralManager = CentralManager.live
 let serviceID = CBUUID(string: "0123")
 
 centralManager.scanForPeripherals(withServices: [serviceID])
@@ -73,6 +74,84 @@ peripheralDiscovery.peripheral
 ```
 
 The publisher returned in `readValue` will only send values that match the service and characteristic IDs through to any subscribers, so you don't need to worry about any filtering logic yourself. Note that if the `Peripheral` never receives a value from this characteristic over bluetooth, it will never send a value into the publisher, so you may want to add a timeout if your use case requires it.
+
+### Mocks
+
+You can create completely custom mock behaviour by using `CentralManager.unimplemented`, `Peripheral.unimplemented` etc, however, classes have been provided which implement the same behaviour as CoreBluetooth but for mock devices. This significantly eases the implementation of mocks.
+
+Here is an example of a mock peripheral which can send and receive data on a characteristic:
+
+```swift
+import CombineCoreBluetooth
+
+struct ABluetoothServiceUUIDs {
+    static let service = CBUUID(string: "FE50")
+}
+
+struct ABluetoothCharacteristicUUIDs {
+    static let data = CBUUID(string: "FE51")
+}
+
+class AMockPeripheral {
+    let mock: MockPeripheral
+    let characteristic: CBCharacteristic
+    private(set) var notifying = false
+    
+    init(name: String, identifier: UUID = UUID()) {
+        let advertiser = MockPeripheral.basicAdvertiser(advertisementInterval: 2, advertisementData: AdvertisementData([.localName: name, .isConnectable: true, .serviceUUIDs: [ABluetoothServiceUUIDs.service]]))
+        self.mock = MockPeripheral(name: name, identifier: identifier, advertiser: advertiser)
+        let c = CBMutableCharacteristic(type: ABluetoothCharacteristicUUIDs.data, properties: [.write, .writeWithoutResponse, .notify], value: nil, permissions: [.writeable])
+        self.characteristic = c
+        let service = CBMutableService(type: ABluetoothServiceUUIDs.service, primary: true)
+        service.characteristics = [c]
+        mock.services = [service]
+        
+        mock.delegate = self
+        mock.discoverable = true
+        mock.connectable = true
+    }
+    
+    func sendData(data: Data) {
+        guard notifying else { return }
+        mock.updateValue(forCharacteristic: characteristic, value: d)
+    }
+}
+
+extension AMockPeripheral: MockPeripheralDelegate {
+    func mockPeripheralHandleReadValue(forDescriptor descriptor: CBDescriptor) async throws -> Data {
+        throw CBATTError(.readNotPermitted)
+    }
+    
+    func mockPeripheralHandleWriteValue(forDescriptor descriptor: CBDescriptor, value: Data) async throws {
+        throw CBATTError(.writeNotPermitted)
+    }
+    
+    func mockPeripheralHandleReadValue(forCharacteristic characteristic: CBCharacteristic) async throws -> Data {
+        throw CBATTError(.readNotPermitted)
+    }
+    
+    func mockPeripheralHandleWriteValue(forCharacteristic characteristic: CBCharacteristic, value: Data, writeType: CBCharacteristicWriteType) async throws {
+        print("Received data: \(data)")
+    }
+    
+    func mockPeripheralHandleSetNotifyValue(forCharacteristic characteristic: CBCharacteristic, enabled: Bool) async throws {
+        guard characteristic == self.characteristic else { return }
+        self.notifying = enabled
+    }
+}
+```
+
+Now, to use the mocks:
+
+```swift
+let mock1 = AMockPeripheral(name: "mock1", identifier: UUID(uuidString: "DA41ED25-94E0-41F9-9CBD-F8855B4EDF22")!)
+let mock2 = AMockPeripheral(name: "mock2", identifier: UUID(uuidString: "DA41ED25-94E0-41F9-9CBD-F8855B4EDF23")!)
+let mockCentralManager = MockCentralManager()
+mockCentralManager.state = .poweredOn
+mockCentralManager.authorization = .allowedAlways
+mockCentralManager.addPeripherals(peripherals: [mock1.mock, mock2.mock])
+// now instead of using `CentralManager.live`, use `mockCentralManager.centralManager`
+```
 
 ## Caveats
 
