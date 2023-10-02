@@ -1,5 +1,6 @@
 import XCTest
 @testable import CombineCoreBluetooth
+import ConcurrencyExtras
 
 #if !os(watchOS) && !os(tvOS)
 final class PeripheralManagerTests: XCTestCase {
@@ -65,9 +66,11 @@ final class PeripheralManagerTests: XCTestCase {
     let characteristic = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.notify], value: nil, permissions: [.readable])
     let central = Central.unimplemented(identifier: .init(), maximumUpdateValueLength: { 512 })
     let readyToUpdateSubject = PassthroughSubject<Void, Never>()
-    var shouldSucceed = false
+    let shouldSucceed = LockIsolated(false)
     let peripheralManager = PeripheralManager.unimplemented(
-      updateValueForCharacteristic: { _, _, _ in shouldSucceed },
+      updateValueForCharacteristic: { _, _, _ in
+        shouldSucceed.withValue { $0 }
+      },
       readyToUpdateSubscribers: readyToUpdateSubject.eraseToAnyPublisher()
     )
     
@@ -86,7 +89,7 @@ final class PeripheralManagerTests: XCTestCase {
     for _ in 1...3 {
       readyToUpdateSubject.send(())
     }
-    shouldSucceed = true
+    shouldSucceed.setValue(true)
     readyToUpdateSubject.send(())
     XCTAssert(complete)
   }

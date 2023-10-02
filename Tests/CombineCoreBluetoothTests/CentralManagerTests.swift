@@ -1,5 +1,6 @@
 import XCTest
 @testable import CombineCoreBluetooth
+import ConcurrencyExtras
 
 final class CentralManagerTests: XCTestCase {
   var cancellables: Set<AnyCancellable>!
@@ -64,41 +65,47 @@ final class CentralManagerTests: XCTestCase {
   }
   
   func testScanForPeripheralsScansOnlyOnSubscription() {
-    var scanCount = 0
-    var stopCount = 0
+    let scanCount = LockIsolated(0)
+    let stopCount = LockIsolated(0)
     let peripheralDiscovery = PassthroughSubject<PeripheralDiscovery, Never>()
-    let centralManager = CentralManager.unimplemented(scanForPeripheralsWithServices: { _, _ in
-      scanCount += 1
-    }, stopScanForPeripherals: {
-      stopCount += 1
-    }, didDiscoverPeripheral: peripheralDiscovery.eraseToAnyPublisher()
+    let centralManager = CentralManager.unimplemented(
+      scanForPeripheralsWithServices: { _, _ in
+        scanCount.withValue { $0 += 1 }
+    },
+      stopScanForPeripherals: {
+        stopCount.withValue { $0 += 1}
+    },
+      didDiscoverPeripheral: peripheralDiscovery.eraseToAnyPublisher()
     )
     
     let p = centralManager.scanForPeripherals(withServices: nil)
-    XCTAssertEqual(scanCount, 0)
+    scanCount.withValue { XCTAssertEqual($0, 0) }
     let _ = p.sink(receiveValue: { _ in })
-    XCTAssertEqual(scanCount, 1)
+    scanCount.withValue { XCTAssertEqual($0, 1) }
   }
   
   func testScanForPeripheralsStopsOnCancellation() {
-    var scanCount = 0
-    var stopCount = 0
+    let scanCount = LockIsolated(0)
+    let stopCount = LockIsolated(0)
     let peripheralDiscovery = PassthroughSubject<PeripheralDiscovery, Never>()
-    let centralManager = CentralManager.unimplemented(scanForPeripheralsWithServices: { _, _ in
-      scanCount += 1
-    }, stopScanForPeripherals: {
-      stopCount += 1
-    }, didDiscoverPeripheral: peripheralDiscovery.eraseToAnyPublisher()
+    let centralManager = CentralManager.unimplemented(
+      scanForPeripheralsWithServices: { _, _ in
+        scanCount.withValue { $0 += 1 }
+      },
+      stopScanForPeripherals: {
+        stopCount.withValue { $0 += 1}
+      },
+      didDiscoverPeripheral: peripheralDiscovery.eraseToAnyPublisher()
     )
     
     let p = centralManager.scanForPeripherals(withServices: nil)
-    XCTAssertEqual(scanCount, 0)
+    scanCount.withValue { XCTAssertEqual($0, 0) }
     let cancellable = p.sink(receiveValue: { _ in })
-    XCTAssertEqual(scanCount, 1)
-    XCTAssertEqual(stopCount, 0)
+    scanCount.withValue { XCTAssertEqual($0, 1) }
+    stopCount.withValue { XCTAssertEqual($0, 0) }
     
     cancellable.cancel()
-    XCTAssertEqual(scanCount, 1)
-    XCTAssertEqual(stopCount, 1)
+    scanCount.withValue { XCTAssertEqual($0, 1) }
+    stopCount.withValue { XCTAssertEqual($0, 1) }
   }
 }

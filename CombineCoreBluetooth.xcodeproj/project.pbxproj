@@ -15,6 +15,7 @@
 		00371A0227EE588C00C2F766 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00371A0127EE588C00C2F766 /* Preview Assets.xcassets */; };
 		00371A2327F02B1900C2F766 /* CentralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00371A2227F02B1900C2F766 /* CentralView.swift */; };
 		00482BE828308A4D0053B7C1 /* PeripheralTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00482BE728308A4D0053B7C1 /* PeripheralTests.swift */; };
+		006CA40A2ACB7D2300DDA85D /* ConcurrencyExtras in Frameworks */ = {isa = PBXBuildFile; productRef = 006CA4092ACB7D2300DDA85D /* ConcurrencyExtras */; };
 		00CF0B78288DD73700FD88E1 /* PeripheralError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CF0B77288DD73700FD88E1 /* PeripheralError.swift */; };
 		00D8C7432A69A6E20069EC00 /* PeripheralManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00D8C7422A69A6E20069EC00 /* PeripheralManagerError.swift */; };
 		EB443FB927C6BDE10005CCEA /* Exports.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB443F9C27C6BDE00005CCEA /* Exports.swift */; };
@@ -116,6 +117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB443FDD27C6C1940005CCEA /* CombineCoreBluetooth.framework in Frameworks */,
+				006CA40A2ACB7D2300DDA85D /* ConcurrencyExtras in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +348,9 @@
 				EB443FDF27C6C1940005CCEA /* PBXTargetDependency */,
 			);
 			name = "CombineCoreBluetooth Tests";
+			packageProductDependencies = (
+				006CA4092ACB7D2300DDA85D /* ConcurrencyExtras */,
+			);
 			productName = "CombineCoreBluetooth-iOSTests";
 			productReference = EB443FD927C6C1940005CCEA /* CombineCoreBluetooth Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -380,6 +385,9 @@
 				Base,
 			);
 			mainGroup = EB443F8427C6BCA70005CCEA;
+			packageReferences = (
+				006CA4082ACB7D2300DDA85D /* XCRemoteSwiftPackageReference "swift-concurrency-extras" */,
+			);
 			productRefGroup = EB443F8F27C6BCA70005CCEA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -829,10 +837,27 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		006CA4082ACB7D2300DDA85D /* XCRemoteSwiftPackageReference "swift-concurrency-extras" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-concurrency-extras.git";
+			requirement = {
+				kind = versionRange;
+				maximumVersion = 2.0.0;
+				minimumVersion = 0.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		0014FFB127F0359600D2A122 /* CombineCoreBluetooth */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CombineCoreBluetooth;
+		};
+		006CA4092ACB7D2300DDA85D /* ConcurrencyExtras */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 006CA4082ACB7D2300DDA85D /* XCRemoteSwiftPackageReference "swift-concurrency-extras" */;
+			productName = ConcurrencyExtras;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
