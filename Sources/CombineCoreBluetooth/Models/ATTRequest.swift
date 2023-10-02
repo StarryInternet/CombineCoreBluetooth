@@ -1,7 +1,7 @@
 import Foundation
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
 
-public struct ATTRequest {
+public struct ATTRequest: Sendable {
   let rawValue: CBATTRequest?
 
   public let central: Central

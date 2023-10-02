@@ -1,6 +1,6 @@
 import Foundation
 
-public enum CentralManagerError: Error, Equatable {
+public enum CentralManagerError: Error, Equatable, Sendable {
   /// Thrown if there's a failure during connection to a peripheral, but there's no error information
   case unknownConnectionFailure
 }

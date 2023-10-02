@@ -1,7 +1,7 @@
 import Foundation
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
 
-public struct L2CAPChannel {
+public struct L2CAPChannel: @unchecked Sendable {
   // Need to keep a reference to this so the system doesn't close the channel
   let rawValue: CBL2CAPChannel?
   public let peer: Peer

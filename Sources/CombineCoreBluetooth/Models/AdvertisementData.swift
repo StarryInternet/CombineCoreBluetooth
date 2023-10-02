@@ -2,7 +2,7 @@ import CoreBluetooth
 import Foundation
 
 /// Various kinds of data that are advertised by peripherals and obtained by the ``CentralManager`` during scanning.
-public struct AdvertisementData {
+public struct AdvertisementData: @unchecked Sendable {
   let dictionary: [String: Any]
 
   /// Initializes the advertisement data with the given dictionary, ideally obtained from `CoreBluetooth` itself.
@@ -60,7 +60,7 @@ public struct AdvertisementData {
   }
 
   /// Keys that may reference data in the ``AdvertisementData`` obtained by searching for peripherals.
-  public struct Key: Equatable, Hashable {
+  public struct Key: Equatable, Hashable, Sendable {
     public let rawValue: String
 
     private init(_ rawValue: String) {
