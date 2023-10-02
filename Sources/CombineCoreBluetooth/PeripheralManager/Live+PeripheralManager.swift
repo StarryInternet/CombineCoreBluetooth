@@ -1,4 +1,5 @@
 import Foundation
+@preconcurrency import CoreBluetooth
 
 extension PeripheralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
@@ -28,21 +29,21 @@ extension PeripheralManager {
       _startAdvertising: { advertisementData in
         peripheralManager.startAdvertising(advertisementData?.dictionary)
       },
-      _stopAdvertising: peripheralManager.stopAdvertising,
+      _stopAdvertising: { peripheralManager.stopAdvertising() },
       _setDesiredConnectionLatency: { (latency, central) in
         peripheralManager.setDesiredConnectionLatency(latency, for: central.rawValue!)
       },
-      _add: peripheralManager.add(_:),
-      _remove: peripheralManager.remove(_:),
-      _removeAllServices: peripheralManager.removeAllServices,
+      _add: { peripheralManager.add($0) },
+      _remove: { peripheralManager.remove($0) },
+      _removeAllServices: { peripheralManager.removeAllServices() },
       _respondToRequest: { (request, result) in
         peripheralManager.respond(to: request.rawValue!, withResult: result)
       },
       _updateValueForCharacteristic: { (data, characteristic, centrals) -> Bool in
         peripheralManager.updateValue(data, for: characteristic, onSubscribedCentrals: centrals?.compactMap(\.rawValue))
       },
-      _publishL2CAPChannel: peripheralManager.publishL2CAPChannel(withEncryption:),
-      _unpublishL2CAPChannel: peripheralManager.unpublishL2CAPChannel(_:),
+      _publishL2CAPChannel: { peripheralManager.publishL2CAPChannel(withEncryption: $0) },
+      _unpublishL2CAPChannel: { peripheralManager.unpublishL2CAPChannel($0) },
       
       didUpdateState: delegate.didUpdateState.eraseToAnyPublisher(),
       didStartAdvertising: delegate.didStartAdvertising.eraseToAnyPublisher(),
