@@ -1,31 +1,32 @@
 import Foundation
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
+@preconcurrency import Combine
 
 /// The `CombineCoreBluetooth` wrapper around `CBPeripheral`.
-public struct Peripheral {
+public struct Peripheral: Sendable {
   let rawValue: CBPeripheral?
   let delegate: Delegate?
 
-  var _name: () -> String?
-  var _identifier: () -> UUID
-  var _state: () -> CBPeripheralState
-  var _services: () -> [CBService]?
-  var _canSendWriteWithoutResponse: () -> Bool
+  var _name: @Sendable () -> String?
+  var _identifier: @Sendable () -> UUID
+  var _state: @Sendable () -> CBPeripheralState
+  var _services: @Sendable () -> [CBService]?
+  var _canSendWriteWithoutResponse: @Sendable () -> Bool
 
-  var _ancsAuthorized: () -> Bool
+  var _ancsAuthorized: @Sendable () -> Bool
 
-  var _readRSSI: () -> Void
-  var _discoverServices: (_ serviceUUIDs: [CBUUID]?) -> Void
-  var _discoverIncludedServices: (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> Void
-  var _discoverCharacteristics: (_ characteristicUUIDs: [CBUUID]?, _ service: CBService) -> Void
-  var _readValueForCharacteristic: (_ characteristic: CBCharacteristic) -> Void
-  var _maximumWriteValueLength: (_ type: CBCharacteristicWriteType) -> Int
-  var _writeValueForCharacteristic: (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> Void
-  var _setNotifyValue: (_ enabled: Bool, _ characteristic: CBCharacteristic) -> Void
-  var _discoverDescriptors: (_ characteristic: CBCharacteristic) -> Void
-  var _readValueForDescriptor: (_ descriptor: CBDescriptor) -> Void
-  var _writeValueForDescriptor: (_ data: Data, _ descriptor: CBDescriptor) -> Void
-  var _openL2CAPChannel: (_ PSM: CBL2CAPPSM) -> Void
+  var _readRSSI: @Sendable () -> Void
+  var _discoverServices: @Sendable (_ serviceUUIDs: [CBUUID]?) -> Void
+  var _discoverIncludedServices: @Sendable (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> Void
+  var _discoverCharacteristics: @Sendable (_ characteristicUUIDs: [CBUUID]?, _ service: CBService) -> Void
+  var _readValueForCharacteristic: @Sendable (_ characteristic: CBCharacteristic) -> Void
+  var _maximumWriteValueLength: @Sendable (_ type: CBCharacteristicWriteType) -> Int
+  var _writeValueForCharacteristic: @Sendable (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> Void
+  var _setNotifyValue: @Sendable (_ enabled: Bool, _ characteristic: CBCharacteristic) -> Void
+  var _discoverDescriptors: @Sendable (_ characteristic: CBCharacteristic) -> Void
+  var _readValueForDescriptor: @Sendable (_ descriptor: CBDescriptor) -> Void
+  var _writeValueForDescriptor: @Sendable (_ data: Data, _ descriptor: CBDescriptor) -> Void
+  var _openL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
 
   var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
   var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
@@ -458,7 +459,7 @@ public struct Peripheral {
 
 extension Peripheral {
   @objc(CCBPeripheralDelegate)
-  class Delegate: NSObject {
+  final class Delegate: NSObject, Sendable {
     let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
     let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
     let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()
