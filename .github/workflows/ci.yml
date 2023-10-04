@@ -41,7 +41,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=iOS Simulator,OS=16.2,name=iPhone 14" \
+           -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
            -sdk iphonesimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \

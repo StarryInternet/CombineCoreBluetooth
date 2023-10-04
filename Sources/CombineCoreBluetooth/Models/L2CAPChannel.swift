@@ -1,5 +1,5 @@
 import Foundation
-@preconcurrency import CoreBluetooth
+import CoreBluetooth
 
 public struct L2CAPChannel: @unchecked Sendable {
   // Need to keep a reference to this so the system doesn't close the channel
