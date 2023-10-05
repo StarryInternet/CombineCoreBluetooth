@@ -8,32 +8,32 @@ public struct CentralManager: Sendable {
   public typealias Feature = CBCentralManager.Feature
 #endif
   let delegate: Delegate?
+
+  public var _state: @Sendable () -> CBManagerState
+  public var _authorization: @Sendable () -> CBManagerAuthorization
+  public var _isScanning: @Sendable () -> Bool
+
+  public var _supportsFeatures: @Sendable (_ feature: Feature) -> Bool
+
+  public var _retrievePeripheralsWithIdentifiers: @Sendable ([UUID]) -> [Peripheral]
+  public var _retrieveConnectedPeripheralsWithServices: @Sendable ([CBUUID]) -> [Peripheral]
+  public var _scanForPeripheralsWithServices: @Sendable (_  serviceUUIDs: [CBUUID]?, _ options: ScanOptions?) -> Void
+  public var _stopScan: @Sendable () -> Void
+
+  public var _connectToPeripheral: @Sendable (Peripheral, _ options: PeripheralConnectionOptions?) -> Void
+  public var _cancelPeripheralConnection: @Sendable (_ peripheral: Peripheral) -> Void
+  public var _registerForConnectionEvents: @Sendable (_ options: [CBConnectionEventMatchingOption : Any]?) -> Void
   
-  let _state: @Sendable () -> CBManagerState
-  let _authorization: @Sendable () -> CBManagerAuthorization
-  let _isScanning: @Sendable () -> Bool
+  public var didUpdateState: AnyPublisher<CBManagerState, Never>
+  public var willRestoreState: AnyPublisher<[String: Any], Never>
+  public var didConnectPeripheral: AnyPublisher<Peripheral, Never>
+  public var didFailToConnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
+  public var didDisconnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
   
-  let _supportsFeatures: @Sendable (_ feature: Feature) -> Bool
+  public var connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never>
+  public var didDiscoverPeripheral: AnyPublisher<PeripheralDiscovery, Never>
   
-  let _retrievePeripheralsWithIdentifiers: @Sendable ([UUID]) -> [Peripheral]
-  let _retrieveConnectedPeripheralsWithServices: @Sendable ([CBUUID]) -> [Peripheral]
-  let _scanForPeripheralsWithServices: @Sendable (_  serviceUUIDs: [CBUUID]?, _ options: ScanOptions?) -> Void
-  let _stopScan: @Sendable () -> Void
-  
-  let _connectToPeripheral: @Sendable (Peripheral, _ options: PeripheralConnectionOptions?) -> Void
-  let _cancelPeripheralConnection: @Sendable (_ peripheral: Peripheral) -> Void
-  let _registerForConnectionEvents: @Sendable (_ options: [CBConnectionEventMatchingOption : Any]?) -> Void
-  
-  public let didUpdateState: AnyPublisher<CBManagerState, Never>
-  public let willRestoreState: AnyPublisher<[String: Any], Never>
-  public let didConnectPeripheral: AnyPublisher<Peripheral, Never>
-  public let didFailToConnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
-  public let didDisconnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
-  
-  public let connectionEventDidOccur: AnyPublisher<(CBConnectionEvent, Peripheral), Never>
-  public let didDiscoverPeripheral: AnyPublisher<PeripheralDiscovery, Never>
-  
-  public let didUpdateACNSAuthorizationForPeripheral: AnyPublisher<Peripheral, Never>
+  public var didUpdateACNSAuthorizationForPeripheral: AnyPublisher<Peripheral, Never>
   
   public var state: CBManagerState {
     _state()

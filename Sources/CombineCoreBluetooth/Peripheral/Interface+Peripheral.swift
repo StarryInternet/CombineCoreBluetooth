@@ -7,38 +7,38 @@ public struct Peripheral: Sendable {
   let rawValue: CBPeripheral?
   let delegate: Delegate?
 
-  var _name: @Sendable () -> String?
-  var _identifier: @Sendable () -> UUID
-  var _state: @Sendable () -> CBPeripheralState
-  var _services: @Sendable () -> [CBService]?
-  var _canSendWriteWithoutResponse: @Sendable () -> Bool
+  public var _name: @Sendable () -> String?
+  public var _identifier: @Sendable () -> UUID
+  public var _state: @Sendable () -> CBPeripheralState
+  public var _services: @Sendable () -> [CBService]?
+  public var _canSendWriteWithoutResponse: @Sendable () -> Bool
 
-  var _ancsAuthorized: @Sendable () -> Bool
+  public var _ancsAuthorized: @Sendable () -> Bool
 
-  var _readRSSI: @Sendable () -> Void
-  var _discoverServices: @Sendable (_ serviceUUIDs: [CBUUID]?) -> Void
-  var _discoverIncludedServices: @Sendable (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> Void
-  var _discoverCharacteristics: @Sendable (_ characteristicUUIDs: [CBUUID]?, _ service: CBService) -> Void
-  var _readValueForCharacteristic: @Sendable (_ characteristic: CBCharacteristic) -> Void
-  var _maximumWriteValueLength: @Sendable (_ type: CBCharacteristicWriteType) -> Int
-  var _writeValueForCharacteristic: @Sendable (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> Void
-  var _setNotifyValue: @Sendable (_ enabled: Bool, _ characteristic: CBCharacteristic) -> Void
-  var _discoverDescriptors: @Sendable (_ characteristic: CBCharacteristic) -> Void
-  var _readValueForDescriptor: @Sendable (_ descriptor: CBDescriptor) -> Void
-  var _writeValueForDescriptor: @Sendable (_ data: Data, _ descriptor: CBDescriptor) -> Void
-  var _openL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
+  public var _readRSSI: @Sendable () -> Void
+  public var _discoverServices: @Sendable (_ serviceUUIDs: [CBUUID]?) -> Void
+  public var _discoverIncludedServices: @Sendable (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> Void
+  public var _discoverCharacteristics: @Sendable (_ characteristicUUIDs: [CBUUID]?, _ service: CBService) -> Void
+  public var _readValueForCharacteristic: @Sendable (_ characteristic: CBCharacteristic) -> Void
+  public var _maximumWriteValueLength: @Sendable (_ type: CBCharacteristicWriteType) -> Int
+  public var _writeValueForCharacteristic: @Sendable (_ data: Data, _ characteristic: CBCharacteristic, _ type: CBCharacteristicWriteType) -> Void
+  public var _setNotifyValue: @Sendable (_ enabled: Bool, _ characteristic: CBCharacteristic) -> Void
+  public var _discoverDescriptors: @Sendable (_ characteristic: CBCharacteristic) -> Void
+  public var _readValueForDescriptor: @Sendable (_ descriptor: CBDescriptor) -> Void
+  public var _writeValueForDescriptor: @Sendable (_ data: Data, _ descriptor: CBDescriptor) -> Void
+  public var _openL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
 
-  var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
-  var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
-  var didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never>
-  var didDiscoverCharacteristics:              AnyPublisher<(CBService, Error?), Never>
-  var didUpdateValueForCharacteristic:         AnyPublisher<(CBCharacteristic, Error?), Never>
-  var didWriteValueForCharacteristic:          AnyPublisher<(CBCharacteristic, Error?), Never>
-  var didUpdateNotificationState:              AnyPublisher<(CBCharacteristic, Error?), Never>
-  var didDiscoverDescriptorsForCharacteristic: AnyPublisher<(CBCharacteristic, Error?), Never>
-  var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
-  var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
-  var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
+  public var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
+  public var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
+  public var didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never>
+  public var didDiscoverCharacteristics:              AnyPublisher<(CBService, Error?), Never>
+  public var didUpdateValueForCharacteristic:         AnyPublisher<(CBCharacteristic, Error?), Never>
+  public var didWriteValueForCharacteristic:          AnyPublisher<(CBCharacteristic, Error?), Never>
+  public var didUpdateNotificationState:              AnyPublisher<(CBCharacteristic, Error?), Never>
+  public var didDiscoverDescriptorsForCharacteristic: AnyPublisher<(CBCharacteristic, Error?), Never>
+  public var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
+  public var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
+  public var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
 
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>

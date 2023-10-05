@@ -6,7 +6,7 @@ public struct Central: Sendable {
 
   public let identifier: UUID
 
-  let _maximumUpdateValueLength: @Sendable () -> Int
+  public var _maximumUpdateValueLength: @Sendable () -> Int
 
   public var maximumUpdateValueLength: Int {
     _maximumUpdateValueLength()
