@@ -1,4 +1,5 @@
 import Foundation
+@preconcurrency import CoreBluetooth
 
 extension Central {
   init(cbcentral: CBCentral) {

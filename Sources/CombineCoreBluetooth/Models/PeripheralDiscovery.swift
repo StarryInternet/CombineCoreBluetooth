@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PeripheralDiscovery: Identifiable {
+public struct PeripheralDiscovery: Identifiable, Sendable {
   public let peripheral: Peripheral
   public let advertisementData: AdvertisementData
   public let rssi: Double?

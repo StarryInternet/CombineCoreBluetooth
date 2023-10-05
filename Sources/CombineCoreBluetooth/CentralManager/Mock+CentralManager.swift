@@ -4,17 +4,17 @@ import CoreBluetooth
 
 extension CentralManager {
   public static func unimplemented(
-    state: @escaping () -> CBManagerState = _Internal._unimplemented("state"),
-    authorization: @escaping () -> CBManagerAuthorization = _Internal._unimplemented("authorization"),
-    isScanning: @escaping () -> Bool = _Internal._unimplemented("isScanning"),
-    supportsFeatures: @escaping (Feature) -> Bool = _Internal._unimplemented("supportsFeatures"),
-    retrievePeripheralsWithIdentifiers: @escaping ([UUID]) -> [Peripheral] = _Internal._unimplemented("retrievePeripheralsWithIdentifiers"),
-    retrieveConnectedPeripheralsWithServices: @escaping ([CBUUID]) -> [Peripheral] = _Internal._unimplemented("retrieveConnectedPeripheralsWithServices"),
-    scanForPeripheralsWithServices: @escaping ([CBUUID]?, ScanOptions?) -> Void = _Internal._unimplemented("scanForPeripheralsWithServices"),
-    stopScanForPeripherals: @escaping () -> Void = _Internal._unimplemented("stopScanForPeripherals"),
-    connectToPeripheral: @escaping (Peripheral, PeripheralConnectionOptions?) -> Void = _Internal._unimplemented("connectToPeripheral"),
-    cancelPeripheralConnection: @escaping (Peripheral) -> Void = _Internal._unimplemented("cancelPeripheralConnection"),
-    registerForConnectionEvents: @escaping ([CBConnectionEventMatchingOption : Any]?) -> Void = _Internal._unimplemented("registerForConnectionEvents"),
+    state: @escaping @Sendable () -> CBManagerState = _Internal._unimplemented("state"),
+    authorization: @escaping @Sendable () -> CBManagerAuthorization = _Internal._unimplemented("authorization"),
+    isScanning: @escaping @Sendable () -> Bool = _Internal._unimplemented("isScanning"),
+    supportsFeatures: @escaping @Sendable (Feature) -> Bool = _Internal._unimplemented("supportsFeatures"),
+    retrievePeripheralsWithIdentifiers: @escaping @Sendable ([UUID]) -> [Peripheral] = _Internal._unimplemented("retrievePeripheralsWithIdentifiers"),
+    retrieveConnectedPeripheralsWithServices: @escaping @Sendable ([CBUUID]) -> [Peripheral] = _Internal._unimplemented("retrieveConnectedPeripheralsWithServices"),
+    scanForPeripheralsWithServices: @escaping @Sendable ([CBUUID]?, ScanOptions?) -> Void = _Internal._unimplemented("scanForPeripheralsWithServices"),
+    stopScanForPeripherals: @escaping @Sendable () -> Void = _Internal._unimplemented("stopScanForPeripherals"),
+    connectToPeripheral: @escaping @Sendable (Peripheral, PeripheralConnectionOptions?) -> Void = _Internal._unimplemented("connectToPeripheral"),
+    cancelPeripheralConnection: @escaping @Sendable (Peripheral) -> Void = _Internal._unimplemented("cancelPeripheralConnection"),
+    registerForConnectionEvents: @escaping @Sendable ([CBConnectionEventMatchingOption : Any]?) -> Void = _Internal._unimplemented("registerForConnectionEvents"),
 
     didUpdateState: AnyPublisher<CBManagerState, Never> = _Internal._unimplemented("didUpdateState"),
     willRestoreState: AnyPublisher<[String: Any], Never> = _Internal._unimplemented("willRestoreState"),

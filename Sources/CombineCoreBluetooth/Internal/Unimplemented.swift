@@ -3,7 +3,7 @@ import Foundation
 public enum _Internal {
   public static func _unimplemented<Output>(
     _ function: StaticString, file: StaticString = #file, line: UInt = #line
-  ) -> () -> Output {
+  ) -> @Sendable () -> Output {
     return {
       fatalError(
         """
@@ -18,7 +18,7 @@ public enum _Internal {
 
   public static func _unimplemented<Input, Output>(
     _ function: StaticString, file: StaticString = #file, line: UInt = #line
-  ) -> (Input) -> Output {
+  ) -> @Sendable (Input) -> Output {
     return { _ in
       fatalError(
         """
@@ -33,7 +33,7 @@ public enum _Internal {
 
   public static func _unimplemented<Input1, Input2, Output>(
     _ function: StaticString, file: StaticString = #file, line: UInt = #line
-  ) -> (Input1, Input2) -> Output {
+  ) -> @Sendable (Input1, Input2) -> Output {
     return { _, _ in
       fatalError(
         """
@@ -48,7 +48,7 @@ public enum _Internal {
 
   public static func _unimplemented<Input1, Input2, Input3, Output>(
     _ function: StaticString, file: StaticString = #file, line: UInt = #line
-  ) -> (Input1, Input2, Input3) -> Output {
+  ) -> @Sendable (Input1, Input2, Input3) -> Output {
     return { _, _, _ in
       fatalError(
         """

@@ -1,5 +1,5 @@
 import Foundation
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
 
 extension Peripheral {
   public init(cbperipheral: CBPeripheral) {
@@ -22,18 +22,18 @@ extension Peripheral {
 #endif
       },
 
-      _readRSSI: cbperipheral.readRSSI,
-      _discoverServices: cbperipheral.discoverServices,
-      _discoverIncludedServices: cbperipheral.discoverIncludedServices(_:for:),
-      _discoverCharacteristics: cbperipheral.discoverCharacteristics(_:for:),
-      _readValueForCharacteristic: cbperipheral.readValue(for:),
-      _maximumWriteValueLength: cbperipheral.maximumWriteValueLength(for:),
-      _writeValueForCharacteristic: cbperipheral.writeValue(_:for:type:),
-      _setNotifyValue: cbperipheral.setNotifyValue(_:for:),
-      _discoverDescriptors: cbperipheral.discoverDescriptors(for:),
-      _readValueForDescriptor: cbperipheral.readValue(for:),
-      _writeValueForDescriptor: cbperipheral.writeValue(_:for:),
-      _openL2CAPChannel: cbperipheral.openL2CAPChannel(_:),
+      _readRSSI: { cbperipheral.readRSSI() },
+      _discoverServices: { cbperipheral.discoverServices($0) },
+      _discoverIncludedServices: { cbperipheral.discoverIncludedServices($0, for: $1) },
+      _discoverCharacteristics: { cbperipheral.discoverCharacteristics($0, for: $1) },
+      _readValueForCharacteristic: { cbperipheral.readValue(for: $0) },
+      _maximumWriteValueLength: { cbperipheral.maximumWriteValueLength(for: $0) },
+      _writeValueForCharacteristic: { cbperipheral.writeValue($0, for: $1, type: $2) },
+      _setNotifyValue: { cbperipheral.setNotifyValue($0, for: $1) },
+      _discoverDescriptors: { cbperipheral.discoverDescriptors(for: $0) },
+      _readValueForDescriptor: { cbperipheral.readValue(for: $0) },
+      _writeValueForDescriptor: { cbperipheral.writeValue($0, for: $1) },
+      _openL2CAPChannel: { cbperipheral.openL2CAPChannel($0) },
 
       didReadRSSI: delegate.didReadRSSI.eraseToAnyPublisher(),
       didDiscoverServices: delegate.didDiscoverServices.eraseToAnyPublisher(),

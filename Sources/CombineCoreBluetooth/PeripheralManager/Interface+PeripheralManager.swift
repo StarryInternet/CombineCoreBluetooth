@@ -1,23 +1,22 @@
 import Foundation
-import CoreBluetooth
-import Combine
+@preconcurrency import Combine
 
-public struct PeripheralManager {
+public struct PeripheralManager: Sendable {
   let delegate: Delegate?
 
-  let _state: () -> CBManagerState
-  let _authorization: () -> CBManagerAuthorization
-  let _isAdvertising: () -> Bool
-  let _startAdvertising: (_ advertisementData: AdvertisementData?) -> Void
-  let _stopAdvertising: () -> Void
-  let _setDesiredConnectionLatency: (_ latency: CBPeripheralManagerConnectionLatency, _ central: Central) -> Void
-  let _add: (_ service: CBMutableService) -> Void
-  let _remove: (_ service: CBMutableService) -> Void
-  let _removeAllServices: () -> Void
-  let _respondToRequest: (_ request: ATTRequest, _ result: CBATTError.Code) -> Void
-  let _updateValueForCharacteristic: (_ value: Data, _ characteristic: CBMutableCharacteristic, _ centrals: [Central]?) -> Bool
-  let _publishL2CAPChannel: (_ encryptionRequired: Bool) -> Void
-  let _unpublishL2CAPChannel: (_ PSM: CBL2CAPPSM) -> Void
+  let _state: @Sendable () -> CBManagerState
+  let _authorization: @Sendable () -> CBManagerAuthorization
+  let _isAdvertising: @Sendable () -> Bool
+  let _startAdvertising: @Sendable (_ advertisementData: AdvertisementData?) -> Void
+  let _stopAdvertising: @Sendable () -> Void
+  let _setDesiredConnectionLatency: @Sendable (_ latency: CBPeripheralManagerConnectionLatency, _ central: Central) -> Void
+  let _add: @Sendable (_ service: CBMutableService) -> Void
+  let _remove: @Sendable (_ service: CBMutableService) -> Void
+  let _removeAllServices: @Sendable () -> Void
+  let _respondToRequest: @Sendable (_ request: ATTRequest, _ result: CBATTError.Code) -> Void
+  let _updateValueForCharacteristic: @Sendable (_ value: Data, _ characteristic: CBMutableCharacteristic, _ centrals: [Central]?) -> Bool
+  let _publishL2CAPChannel: @Sendable (_ encryptionRequired: Bool) -> Void
+  let _unpublishL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
 
   public let didUpdateState: AnyPublisher<CBManagerState, Never>
   public let didStartAdvertising: AnyPublisher<Error?, Never>
@@ -134,18 +133,18 @@ public struct PeripheralManager {
 
 extension PeripheralManager {
   @objc(CCBPeripheralManagerDelegate)
-  class Delegate: NSObject {
-    var didUpdateState:                          PassthroughSubject<CBManagerState, Never>              = .init()
-    var willRestoreState:                        PassthroughSubject<[String: Any], Never>               = .init()
-    var didStartAdvertising:                     PassthroughSubject<Error?, Never>                      = .init()
-    var didAddService:                           PassthroughSubject<(CBService, Error?), Never>         = .init()
-    var centralDidSubscribeToCharacteristic:     PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
-    var centralDidUnsubscribeFromCharacteristic: PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
-    var didReceiveReadRequest:                   PassthroughSubject<ATTRequest, Never>                  = .init()
-    var didReceiveWriteRequests:                 PassthroughSubject<[ATTRequest], Never>                = .init()
-    var readyToUpdateSubscribers:                PassthroughSubject<Void, Never>                        = .init()
-    var didPublishL2CAPChannel:                  PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
-    var didUnpublishL2CAPChannel:                PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
-    var didOpenL2CAPChannel:                     PassthroughSubject<(L2CAPChannel?, Error?), Never>     = .init()
+  final class Delegate: NSObject, Sendable {
+    let didUpdateState:                          PassthroughSubject<CBManagerState, Never>              = .init()
+    let willRestoreState:                        PassthroughSubject<[String: Any], Never>               = .init()
+    let didStartAdvertising:                     PassthroughSubject<Error?, Never>                      = .init()
+    let didAddService:                           PassthroughSubject<(CBService, Error?), Never>         = .init()
+    let centralDidSubscribeToCharacteristic:     PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
+    let centralDidUnsubscribeFromCharacteristic: PassthroughSubject<(Central, CBCharacteristic), Never> = .init()
+    let didReceiveReadRequest:                   PassthroughSubject<ATTRequest, Never>                  = .init()
+    let didReceiveWriteRequests:                 PassthroughSubject<[ATTRequest], Never>                = .init()
+    let readyToUpdateSubscribers:                PassthroughSubject<Void, Never>                        = .init()
+    let didPublishL2CAPChannel:                  PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
+    let didUnpublishL2CAPChannel:                PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
+    let didOpenL2CAPChannel:                     PassthroughSubject<(L2CAPChannel?, Error?), Never>     = .init()
   }
 }

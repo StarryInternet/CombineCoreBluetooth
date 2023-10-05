@@ -1,5 +1,5 @@
 import Combine
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
 import Foundation
 
 extension CentralManager {
@@ -10,12 +10,6 @@ extension CentralManager {
       queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global()),
       options: options?.centralManagerDictionary
     )
-    
-#if os(macOS) && !targetEnvironment(macCatalyst)
-    func supportsFeatures<A>(_ feature: Never) -> A {}
-#else
-    let supportsFeatures = CBCentralManager.supports
-#endif
     
     return Self.init(
       delegate: delegate,
@@ -28,7 +22,13 @@ extension CentralManager {
         }
       },
       _isScanning: { centralManager.isScanning },
-      _supportsFeatures: supportsFeatures,
+      _supportsFeatures: {
+#if os(macOS) && !targetEnvironment(macCatalyst)
+        // will never be called on native macOS
+#else
+        CBCentralManager.supports($0)
+#endif
+      },
       _retrievePeripheralsWithIdentifiers: { (identifiers) -> [Peripheral] in
         centralManager.retrievePeripherals(withIdentifiers: identifiers).map(Peripheral.init(cbperipheral:))
       },
@@ -38,7 +38,7 @@ extension CentralManager {
       _scanForPeripheralsWithServices: { services, options in
         centralManager.scanForPeripherals(withServices: services, options: options?.dictionary)
       },
-      _stopScan: centralManager.stopScan,
+      _stopScan: { centralManager.stopScan() },
       _connectToPeripheral: { (peripheral, options) in
         centralManager.connect(peripheral.rawValue!, options: options?.dictionary)
       },

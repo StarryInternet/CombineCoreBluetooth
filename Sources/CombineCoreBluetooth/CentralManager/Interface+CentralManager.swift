@@ -1,8 +1,7 @@
-import Combine
-import CoreBluetooth
+@preconcurrency import Combine
 import Foundation
 
-public struct CentralManager {
+public struct CentralManager: Sendable {
 #if os(macOS) && !targetEnvironment(macCatalyst)
   public typealias Feature = Never
 #else
@@ -10,20 +9,20 @@ public struct CentralManager {
 #endif
   let delegate: Delegate?
   
-  let _state: () -> CBManagerState
-  let _authorization: () -> CBManagerAuthorization
-  let _isScanning: () -> Bool
+  let _state: @Sendable () -> CBManagerState
+  let _authorization: @Sendable () -> CBManagerAuthorization
+  let _isScanning: @Sendable () -> Bool
   
-  let _supportsFeatures: (_ feature: Feature) -> Bool
+  let _supportsFeatures: @Sendable (_ feature: Feature) -> Bool
   
-  let _retrievePeripheralsWithIdentifiers: ([UUID]) -> [Peripheral]
-  let _retrieveConnectedPeripheralsWithServices: ([CBUUID]) -> [Peripheral]
-  let _scanForPeripheralsWithServices: (_  serviceUUIDs: [CBUUID]?, _ options: ScanOptions?) -> Void
-  let _stopScan: () -> Void
+  let _retrievePeripheralsWithIdentifiers: @Sendable ([UUID]) -> [Peripheral]
+  let _retrieveConnectedPeripheralsWithServices: @Sendable ([CBUUID]) -> [Peripheral]
+  let _scanForPeripheralsWithServices: @Sendable (_  serviceUUIDs: [CBUUID]?, _ options: ScanOptions?) -> Void
+  let _stopScan: @Sendable () -> Void
   
-  let _connectToPeripheral: (Peripheral, _ options: PeripheralConnectionOptions?) -> Void
-  let _cancelPeripheralConnection: (_ peripheral: Peripheral) -> Void
-  let _registerForConnectionEvents: (_ options: [CBConnectionEventMatchingOption : Any]?) -> Void
+  let _connectToPeripheral: @Sendable (Peripheral, _ options: PeripheralConnectionOptions?) -> Void
+  let _cancelPeripheralConnection: @Sendable (_ peripheral: Peripheral) -> Void
+  let _registerForConnectionEvents: @Sendable (_ options: [CBConnectionEventMatchingOption : Any]?) -> Void
   
   public let didUpdateState: AnyPublisher<CBManagerState, Never>
   public let willRestoreState: AnyPublisher<[String: Any], Never>
@@ -173,7 +172,7 @@ public struct CentralManager {
   }
   
   @objc(CCBCentralManagerDelegate)
-  class Delegate: NSObject {
+  final class Delegate: NSObject, Sendable {
     let didUpdateState: PassthroughSubject<CBManagerState, Never> = .init()
     let willRestoreState: PassthroughSubject<[String: Any], Never> = .init()
     let didConnectPeripheral: PassthroughSubject<Peripheral, Never> = .init()

@@ -1,7 +1,8 @@
 import Foundation
+@preconcurrency import CoreBluetooth
 
 /// Protocol that represents either a `Central` or a `Peripheral` when either could be present.
-public protocol Peer {
+public protocol Peer: Sendable {
   var identifier: UUID { get }
 }
 

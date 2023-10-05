@@ -6,7 +6,9 @@
 //
 
 @testable import CombineCoreBluetooth
+@preconcurrency import Combine
 import XCTest
+import ConcurrencyExtras
 
 #if !os(watchOS) && !os(tvOS)
 class PeripheralTests: XCTestCase {
@@ -186,10 +188,10 @@ class PeripheralTests: XCTestCase {
     let c = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.read, .notify], value: nil, permissions: [.readEncryptionRequired])
     
     let subject = PassthroughSubject<(Data?, Error?), Never>()
-    var notifyValues: [Bool] = []
+    let notifyValues: LockIsolated<[Bool]> = LockIsolated([])
     
     let p = Peripheral.failing(
-      setNotifyValue: { notifyValue, characteristic in notifyValues.append(notifyValue) },
+      setNotifyValue: { notifyValue, characteristic in notifyValues.withValue { $0.append(notifyValue) } },
       didUpdateValueForCharacteristic: subject
         .map {
           c.value = $0
@@ -207,13 +209,13 @@ class PeripheralTests: XCTestCase {
     } receiveValue: {
       values.append($0)
     }
-    XCTAssertEqual(notifyValues, [true])
+    XCTAssertEqual(notifyValues.withValue { $0 }, [true])
     
     subject.send((Data("a".utf8), nil))
     subject.send((Data("b".utf8), nil))
     cancellable.cancel()
     // test that cancellation unsubscribes to the characteristic
-    XCTAssertEqual(notifyValues, [true, false])
+    XCTAssertEqual(notifyValues.withValue { $0 }, [true, false])
     
     XCTAssertEqual(values, [Data("a".utf8), Data("b".utf8)])
   }
@@ -221,12 +223,12 @@ class PeripheralTests: XCTestCase {
   func testSubscribeToCharacteristicFailsWhenSetNotifyValueFails() {
     let c = CBMutableCharacteristic(type: .init(string: "0001"), properties: [.read, .notify], value: nil, permissions: [.readEncryptionRequired])
     
-    var notifyValues: [Bool] = []
+    let notifyValues: LockIsolated<[Bool]> = LockIsolated([])
     
     struct SomeError: Error {}
     
     let p = Peripheral.failing(
-      setNotifyValue: { notifyValue, characteristic in notifyValues.append(notifyValue) },
+      setNotifyValue: { notifyValue, characteristic in notifyValues.withValue { $0.append(notifyValue) } },
       didUpdateValueForCharacteristic: Empty().eraseToAnyPublisher(),
       didUpdateNotificationState: Just((c, SomeError())).eraseToAnyPublisher()
     )
@@ -239,7 +241,7 @@ class PeripheralTests: XCTestCase {
     } receiveValue: {
       values.append($0)
     }
-    XCTAssertEqual(notifyValues, [true])
+    XCTAssertEqual(notifyValues.withValue { $0 }, [true])
     XCTAssertEqual(values, [])
     cancellable.cancel()
   }
@@ -309,19 +311,19 @@ extension Peripheral {
   }
 
   @_disfavoredOverload
-  static func fail(_ name: String, file: StaticString = #file, line: UInt = #line) -> () -> Void {
+  static func fail(_ name: String, file: StaticString = #file, line: UInt = #line) -> @Sendable () -> Void {
     { fail(name, file: file, line: line) }
   }
 
-  static func fail<A>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A) -> Void {
+  static func fail<A>(_ name: String, file: StaticString = #file, line: UInt = #line) -> @Sendable (A) -> Void {
     { _ in fail(name, file: file, line: line) }
   }
 
-  static func fail<A,B>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A,B) -> Void {
+  static func fail<A,B>(_ name: String, file: StaticString = #file, line: UInt = #line) -> @Sendable (A,B) -> Void {
     { _, _ in fail(name, file: file, line: line) }
   }
 
-  static func fail<A,B,C>(_ name: String, file: StaticString = #file, line: UInt = #line) -> (A,B,C) -> Void {
+  static func fail<A,B,C>(_ name: String, file: StaticString = #file, line: UInt = #line) -> @Sendable (A,B,C) -> Void {
     { _, _, _ in fail(name, file: file, line: line) }
   }
 
@@ -336,22 +338,22 @@ extension Peripheral {
   static func failing(
     name: String? = nil,
     identifier: UUID = .init(),
-    state: @escaping () -> CBPeripheralState = { fail("name"); return .disconnected },
-    services: @escaping () -> [CBService]? = { fail("services"); return nil },
-    canSendWriteWithoutResponse: @escaping () -> Bool = { fail("canSendWriteWithoutResponse"); return false },
-    ancsAuthorized: @escaping () -> Bool = { fail("ancsAuthorized"); return false },
-    readRSSI: @escaping () -> Void = fail("readRSSI"),
-    discoverServices: @escaping ([CBUUID]?) -> Void = fail("discoverServices"),
-    discoverIncludedServices: @escaping ([CBUUID]?, CBService) -> Void = fail("discoverIncludedServices"),
-    discoverCharacteristics: @escaping ([CBUUID]?, CBService) -> Void = fail("discoverCharacteristics"),
-    readValueForCharacteristic: @escaping (CBCharacteristic) -> Void = fail("readValueForCharacteristic"),
-    maximumWriteValueLength: @escaping (CBCharacteristicWriteType) -> Int = { _ in fail("maximumWriteValueLength"); return 0 },
-    writeValueForCharacteristic: @escaping (Data, CBCharacteristic, CBCharacteristicWriteType) -> Void = fail("writeValueForCharacteristic"),
-    setNotifyValue: @escaping (Bool, CBCharacteristic) -> Void = fail("setNotifyValue"),
-    discoverDescriptors: @escaping (CBCharacteristic) -> Void = fail("discoverDescriptors"),
-    readValueForDescriptor: @escaping (CBDescriptor) -> Void = fail("readValueForDescriptor"),
-    writeValueForDescriptor: @escaping (Data, CBDescriptor) -> Void = fail("writeValueForDescriptor"),
-    openL2CAPChannel: @escaping (CBL2CAPPSM) -> Void = fail("openL2CAPChannel"),
+    state: @escaping @Sendable () -> CBPeripheralState = { fail("name"); return .disconnected },
+    services: @escaping @Sendable () -> [CBService]? = { fail("services"); return nil },
+    canSendWriteWithoutResponse: @escaping @Sendable () -> Bool = { fail("canSendWriteWithoutResponse"); return false },
+    ancsAuthorized: @escaping @Sendable () -> Bool = { fail("ancsAuthorized"); return false },
+    readRSSI: @escaping @Sendable () -> Void = fail("readRSSI"),
+    discoverServices: @escaping @Sendable ([CBUUID]?) -> Void = fail("discoverServices"),
+    discoverIncludedServices: @escaping @Sendable ([CBUUID]?, CBService) -> Void = fail("discoverIncludedServices"),
+    discoverCharacteristics: @escaping @Sendable ([CBUUID]?, CBService) -> Void = fail("discoverCharacteristics"),
+    readValueForCharacteristic: @escaping @Sendable (CBCharacteristic) -> Void = fail("readValueForCharacteristic"),
+    maximumWriteValueLength: @escaping @Sendable (CBCharacteristicWriteType) -> Int = { _ in fail("maximumWriteValueLength"); return 0 },
+    writeValueForCharacteristic: @escaping @Sendable (Data, CBCharacteristic, CBCharacteristicWriteType) -> Void = fail("writeValueForCharacteristic"),
+    setNotifyValue: @escaping @Sendable (Bool, CBCharacteristic) -> Void = fail("setNotifyValue"),
+    discoverDescriptors: @escaping @Sendable (CBCharacteristic) -> Void = fail("discoverDescriptors"),
+    readValueForDescriptor: @escaping @Sendable (CBDescriptor) -> Void = fail("readValueForDescriptor"),
+    writeValueForDescriptor: @escaping @Sendable (Data, CBDescriptor) -> Void = fail("writeValueForDescriptor"),
+    openL2CAPChannel: @escaping @Sendable (CBL2CAPPSM) -> Void = fail("openL2CAPChannel"),
     didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never> = fail("didReadRSSI"),
     didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never> = fail("didDiscoverServices"),
     didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never> = fail("didDiscoverIncludedServices"),
