@@ -11,12 +11,6 @@ extension CentralManager {
       options: options?.centralManagerDictionary
     )
     
-#if os(macOS) && !targetEnvironment(macCatalyst)
-    @Sendable func supportsFeatures<A>(_ feature: Never) -> A {}
-#else
-    let supportsFeatures: @Sendable (_ features: CBCentralManager.Feature) -> Bool = { CBCentralManager.supports($0) }
-#endif
-    
     return Self.init(
       delegate: delegate,
       _state: { centralManager.state },
@@ -28,7 +22,13 @@ extension CentralManager {
         }
       },
       _isScanning: { centralManager.isScanning },
-      _supportsFeatures: supportsFeatures,
+      _supportsFeatures: {
+#if os(macOS) && !targetEnvironment(macCatalyst)
+        // will never be called on native macOS
+#else
+        CBCentralManager.supports($0)
+#endif
+      },
       _retrievePeripheralsWithIdentifiers: { (identifiers) -> [Peripheral] in
         centralManager.retrievePeripherals(withIdentifiers: identifiers).map(Peripheral.init(cbperipheral:))
       },
