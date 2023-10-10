@@ -4,31 +4,31 @@ import Foundation
 public struct PeripheralManager: Sendable {
   let delegate: Delegate?
 
-  let _state: @Sendable () -> CBManagerState
-  let _authorization: @Sendable () -> CBManagerAuthorization
-  let _isAdvertising: @Sendable () -> Bool
-  let _startAdvertising: @Sendable (_ advertisementData: AdvertisementData?) -> Void
-  let _stopAdvertising: @Sendable () -> Void
-  let _setDesiredConnectionLatency: @Sendable (_ latency: CBPeripheralManagerConnectionLatency, _ central: Central) -> Void
-  let _add: @Sendable (_ service: CBMutableService) -> Void
-  let _remove: @Sendable (_ service: CBMutableService) -> Void
-  let _removeAllServices: @Sendable () -> Void
-  let _respondToRequest: @Sendable (_ request: ATTRequest, _ result: CBATTError.Code) -> Void
-  let _updateValueForCharacteristic: @Sendable (_ value: Data, _ characteristic: CBMutableCharacteristic, _ centrals: [Central]?) -> Bool
-  let _publishL2CAPChannel: @Sendable (_ encryptionRequired: Bool) -> Void
-  let _unpublishL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
+  public var _state: @Sendable () -> CBManagerState
+  public var _authorization: @Sendable () -> CBManagerAuthorization
+  public var _isAdvertising: @Sendable () -> Bool
+  public var _startAdvertising: @Sendable (_ advertisementData: AdvertisementData?) -> Void
+  public var _stopAdvertising: @Sendable () -> Void
+  public var _setDesiredConnectionLatency: @Sendable (_ latency: CBPeripheralManagerConnectionLatency, _ central: Central) -> Void
+  public var _add: @Sendable (_ service: CBMutableService) -> Void
+  public var _remove: @Sendable (_ service: CBMutableService) -> Void
+  public var _removeAllServices: @Sendable () -> Void
+  public var _respondToRequest: @Sendable (_ request: ATTRequest, _ result: CBATTError.Code) -> Void
+  public var _updateValueForCharacteristic: @Sendable (_ value: Data, _ characteristic: CBMutableCharacteristic, _ centrals: [Central]?) -> Bool
+  public var _publishL2CAPChannel: @Sendable (_ encryptionRequired: Bool) -> Void
+  public var _unpublishL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
 
-  public let didUpdateState: AnyPublisher<CBManagerState, Never>
-  public let didStartAdvertising: AnyPublisher<Error?, Never>
-  public let didAddService: AnyPublisher<(CBService, Error?), Never>
-  public let centralDidSubscribeToCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
-  public let centralDidUnsubscribeFromCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
-  public let didReceiveReadRequest: AnyPublisher<ATTRequest, Never>
-  public let didReceiveWriteRequests: AnyPublisher<[ATTRequest], Never>
-  public let readyToUpdateSubscribers: AnyPublisher<Void, Never>
-  public let didPublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
-  public let didUnpublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
-  public let didOpenL2CAPChannel: AnyPublisher<(L2CAPChannel?, Error?), Never>
+  public var didUpdateState: AnyPublisher<CBManagerState, Never>
+  public var didStartAdvertising: AnyPublisher<Error?, Never>
+  public var didAddService: AnyPublisher<(CBService, Error?), Never>
+  public var centralDidSubscribeToCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
+  public var centralDidUnsubscribeFromCharacteristic: AnyPublisher<(Central, CBCharacteristic), Never>
+  public var didReceiveReadRequest: AnyPublisher<ATTRequest, Never>
+  public var didReceiveWriteRequests: AnyPublisher<[ATTRequest], Never>
+  public var readyToUpdateSubscribers: AnyPublisher<Void, Never>
+  public var didPublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
+  public var didUnpublishL2CAPChannel: AnyPublisher<(CBL2CAPPSM, Error?), Never>
+  public var didOpenL2CAPChannel: AnyPublisher<(L2CAPChannel?, Error?), Never>
 
   public var state: CBManagerState {
     _state()
