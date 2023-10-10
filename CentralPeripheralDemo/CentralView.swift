@@ -47,9 +47,9 @@ class CentralDemo: ObservableObject {
   func connect(_ discovery: PeripheralDiscovery) {
     centralManager.connect(discovery.peripheral)
       .map(Result.success)
-      .catch({ Just(Result.failure($0)) })
-        .receive(on: DispatchQueue.main)
-        .assign(to: &$peripheralConnectResult)
+      .catch { Just(Result.failure($0)) }
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$peripheralConnectResult)
   }
 }
 
