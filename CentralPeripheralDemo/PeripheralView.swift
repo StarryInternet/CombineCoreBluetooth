@@ -66,13 +66,13 @@ class PeripheralDemo: ObservableObject {
   }
 
   func start() {
-    buildServices()
-      
     peripheralManager.startAdvertising(.init([.serviceUUIDs: [CBUUID.service]]))
+      .receive(on: DispatchQueue.main)
       .sink(receiveCompletion: { c in
         
       }, receiveValue: { [weak self] _ in
         self?.advertising = true
+        self?.buildServices()
       })
       .store(in: &cancellables)
   }
