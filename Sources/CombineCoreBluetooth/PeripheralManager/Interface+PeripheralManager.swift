@@ -148,6 +148,7 @@ extension PeripheralManager {
     let didOpenL2CAPChannel:                     PassthroughSubject<(L2CAPChannel?, Error?), Never>     = .init()
   }
   
+  @objc(CCBPeripheralManagerRestorableDelegate)
   class RestorableDelegate: Delegate {
     
   }

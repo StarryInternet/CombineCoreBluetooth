@@ -183,6 +183,7 @@ public struct CentralManager: Sendable {
     let didUpdateACNSAuthorizationForPeripheral: PassthroughSubject<Peripheral, Never> = .init()
   }
   
+  @objc(CCBCentralManagerRestorableDelegate)
   class RestorableDelegate: Delegate {
   }
 }
