@@ -172,7 +172,7 @@ public struct CentralManager: Sendable {
   }
   
   @objc(CCBCentralManagerDelegate)
-  final class Delegate: NSObject, Sendable {
+  class Delegate: NSObject, @unchecked Sendable {
     let didUpdateState: PassthroughSubject<CBManagerState, Never> = .init()
     let willRestoreState: PassthroughSubject<[String: Any], Never> = .init()
     let didConnectPeripheral: PassthroughSubject<Peripheral, Never> = .init()
@@ -181,5 +181,8 @@ public struct CentralManager: Sendable {
     let connectionEventDidOccur: PassthroughSubject<(CBConnectionEvent, Peripheral), Never> = .init()
     let didDiscoverPeripheral: PassthroughSubject<PeripheralDiscovery, Never> = .init()
     let didUpdateACNSAuthorizationForPeripheral: PassthroughSubject<Peripheral, Never> = .init()
+  }
+  
+  class RestorableDelegate: Delegate {
   }
 }

@@ -3,14 +3,14 @@ import Foundation
 
 extension PeripheralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
-    let delegate = Delegate()
+    let delegate: Delegate = options?.restoreIdentifierKey != nil ? RestorableDelegate() : Delegate()
 #if os(tvOS) || os(watchOS)
     let peripheralManager = CBPeripheralManager()
     peripheralManager.delegate = delegate
 #else
     let peripheralManager = CBPeripheralManager(
       delegate: delegate,
-      queue: DispatchQueue(label: "com.combine-core-bluetooth.peripheral", target: .global()),
+      queue: DispatchQueue(label: "combine-core-bluetooth.peripheral-manager", target: .global()),
       options: options?.peripheralManagerDictionary
     )
 #endif
@@ -65,10 +65,6 @@ extension PeripheralManager.Delegate: CBPeripheralManagerDelegate {
     didUpdateState.send(peripheral.state)
   }
   
-  func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
-    willRestoreState.send(dict)
-  }
-  
   func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
     didStartAdvertising.send(error)
   }
@@ -107,5 +103,11 @@ extension PeripheralManager.Delegate: CBPeripheralManagerDelegate {
   
   func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: Error?) {
     didOpenL2CAPChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
+  }
+}
+
+extension PeripheralManager.RestorableDelegate {
+  func peripheralManager(_ peripheral: CBPeripheralManager, willRestoreState dict: [String : Any]) {
+    willRestoreState.send(dict)
   }
 }

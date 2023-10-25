@@ -4,10 +4,10 @@ import Foundation
 
 extension CentralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
-    let delegate = Delegate()
+    let delegate: Delegate = options?.restoreIdentifierKey != nil ? RestorableDelegate() : Delegate()
     let centralManager = CBCentralManager(
       delegate: delegate,
-      queue: DispatchQueue(label: "com.combine-core-bluetooth.central", target: .global()),
+      queue: DispatchQueue(label: "combine-core-bluetooth.central-manager", target: .global()),
       options: options?.centralManagerDictionary
     )
     
@@ -90,10 +90,6 @@ extension CentralManager.Delegate: CBCentralManagerDelegate {
     didUpdateState.send(central.state)
   }
   
-  func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-    willRestoreState.send(dict)
-  }
-  
   func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
     didConnectPeripheral.send(Peripheral(cbperipheral: peripheral))
   }
@@ -125,4 +121,10 @@ extension CentralManager.Delegate: CBCentralManagerDelegate {
     didUpdateACNSAuthorizationForPeripheral.send(Peripheral(cbperipheral: peripheral))
   }
 #endif
+}
+
+extension CentralManager.RestorableDelegate {
+  func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
+    willRestoreState.send(dict)
+  }
 }
