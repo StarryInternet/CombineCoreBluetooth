@@ -133,7 +133,7 @@ public struct PeripheralManager: Sendable {
 
 extension PeripheralManager {
   @objc(CCBPeripheralManagerDelegate)
-  final class Delegate: NSObject, Sendable {
+  class Delegate: NSObject, @unchecked Sendable {
     let didUpdateState:                          PassthroughSubject<CBManagerState, Never>              = .init()
     let willRestoreState:                        PassthroughSubject<[String: Any], Never>               = .init()
     let didStartAdvertising:                     PassthroughSubject<Error?, Never>                      = .init()
@@ -146,5 +146,10 @@ extension PeripheralManager {
     let didPublishL2CAPChannel:                  PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
     let didUnpublishL2CAPChannel:                PassthroughSubject<(CBL2CAPPSM, Error?), Never>        = .init()
     let didOpenL2CAPChannel:                     PassthroughSubject<(L2CAPChannel?, Error?), Never>     = .init()
+  }
+  
+  @objc(CCBPeripheralManagerRestorableDelegate)
+  class RestorableDelegate: Delegate {
+    
   }
 }
