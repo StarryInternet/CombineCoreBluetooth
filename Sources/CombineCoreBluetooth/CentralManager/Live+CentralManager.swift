@@ -4,7 +4,7 @@ import Foundation
 
 extension CentralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
-    let delegate: Delegate = options?.restoreIdentifierKey != nil ? RestorableDelegate() : Delegate()
+    let delegate: Delegate = options?.restoreIdentifier != nil ? RestorableDelegate() : Delegate()
     let centralManager = CBCentralManager(
       delegate: delegate,
       queue: DispatchQueue(label: "combine-core-bluetooth.central-manager", target: .global()),

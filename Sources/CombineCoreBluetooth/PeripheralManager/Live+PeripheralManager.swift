@@ -3,7 +3,7 @@ import Foundation
 
 extension PeripheralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
-    let delegate: Delegate = options?.restoreIdentifierKey != nil ? RestorableDelegate() : Delegate()
+    let delegate: Delegate = options?.restoreIdentifier != nil ? RestorableDelegate() : Delegate()
 #if os(tvOS) || os(watchOS)
     let peripheralManager = CBPeripheralManager()
     peripheralManager.delegate = delegate
