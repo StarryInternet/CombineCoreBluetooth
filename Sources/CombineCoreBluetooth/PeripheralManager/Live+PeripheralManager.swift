@@ -4,15 +4,15 @@ import Foundation
 extension PeripheralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
     let delegate: Delegate = options?.restoreIdentifier != nil ? RestorableDelegate() : Delegate()
-#if os(tvOS) || os(watchOS)
-    let peripheralManager = CBPeripheralManager()
-    peripheralManager.delegate = delegate
-#else
+#if os(macOS) || os(iOS)
     let peripheralManager = CBPeripheralManager(
       delegate: delegate,
       queue: DispatchQueue(label: "combine-core-bluetooth.peripheral-manager", target: .global()),
       options: options?.peripheralManagerDictionary
     )
+#else
+    let peripheralManager = CBPeripheralManager()
+    peripheralManager.delegate = delegate
 #endif
     
     return Self(

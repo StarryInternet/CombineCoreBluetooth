@@ -10,7 +10,7 @@
 import XCTest
 import ConcurrencyExtras
 
-#if !os(watchOS) && !os(tvOS)
+#if os(macOS) || os(iOS)
 class PeripheralTests: XCTestCase {
 
   override func setUpWithError() throws {
