@@ -17,12 +17,22 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  
+env:
+  DEVELOPER_DIR: "/Applications/Xcode_15.2.app/Contents/Developer"
 
 jobs:
   build-mac:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
+      - name: Update Tools
+        run: gem update cocoapods
+      - name: Print Versions
+        run: |
+          xcodebuild -version
+          swift --version
+          pod --version
       - name: Build
         run: swift build --build-tests
       - name: Run tests
@@ -33,7 +43,7 @@ jobs:
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
 
   build-ios:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
       - name: Test
@@ -41,14 +51,14 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=iOS Simulator,OS=latest,name=iPhone 14" \
+           -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" \
            -sdk iphonesimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
            test | xcpretty -c
 
   build-tvos:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
       - name: Test
@@ -56,14 +66,14 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=tvOS Simulator,OS=16.1,name=Apple TV" \
+           -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" \
            -sdk appletvsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
            test | xcpretty -c
 
   build-watchos:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
       - name: Test
@@ -71,8 +81,23 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=watchOS Simulator,OS=9.1,name=Apple Watch Ultra (49mm)" \
+           -destination "platform=watchOS Simulator,OS=latest,name=Apple Watch Ultra (49mm)" \
            -sdk watchsimulator \
+           -enableCodeCoverage YES \
+           -disableAutomaticPackageResolution \
+           test | xcpretty -c
+  
+  build-visionos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: |
+          set -o pipefail && xcodebuild \
+           -scheme CombineCoreBluetooth \
+           -workspace ./CombineCoreBluetooth.xcworkspace/ \
+           -destination "platform=visionOS Simulator,OS=latest,name=Apple Vision Pro" \
+           -sdk xrsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
            test | xcpretty -c

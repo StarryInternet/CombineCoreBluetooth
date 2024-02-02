@@ -2,7 +2,7 @@ import XCTest
 @testable import CombineCoreBluetooth
 import ConcurrencyExtras
 
-#if !os(watchOS) && !os(tvOS)
+#if os(macOS) || os(iOS)
 final class PeripheralManagerTests: XCTestCase {
   var cancellables: Set<AnyCancellable>!
   
