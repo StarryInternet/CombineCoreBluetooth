@@ -190,20 +190,20 @@ public struct Peripheral: Sendable {
 
   private func writeValueWithResponse(_ value: Data, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     didWriteValueForCharacteristic
-     .filterFirstValueOrThrow(where: {
-       $0.uuid == characteristic.uuid
-     })
-     .map { _ in }
-     .handleEvents(receiveSubscription: { [_writeValueForCharacteristic] _ in
-       _writeValueForCharacteristic(value, characteristic, .withResponse)
-     })
-     .shareCurrentValue()
+      .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
+        $0.uuid == uuid
+      })
+      .map { _ in }
+      .handleEvents(receiveSubscription: { [_writeValueForCharacteristic] _ in
+        _writeValueForCharacteristic(value, characteristic, .withResponse)
+      })
+      .shareCurrentValue()
   }
 
   public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     didUpdateNotificationState
-      .filterFirstValueOrThrow(where: {
-        $0.uuid == characteristic.uuid
+      .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
+        $0.uuid == uuid
       })
       .map { _ in }
       .handleEvents(receiveSubscription: { [_setNotifyValue] _ in
@@ -214,8 +214,8 @@ public struct Peripheral: Sendable {
 
   public func discoverDescriptors(for characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error> {
     didDiscoverDescriptorsForCharacteristic
-      .filterFirstValueOrThrow(where: {
-        $0.uuid == characteristic.uuid
+      .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
+        $0.uuid == uuid
       })
       .map(\.descriptors)
       .handleEvents(receiveSubscription: { [_discoverDescriptors] _ in
@@ -226,8 +226,8 @@ public struct Peripheral: Sendable {
 
   public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
     didUpdateValueForDescriptor
-      .filterFirstValueOrThrow(where: {
-        $0.uuid == descriptor.uuid
+      .filterFirstValueOrThrow(where: { [uuid = descriptor.uuid] in
+        $0.uuid == uuid
       })
       .map(\.value)
       .handleEvents(receiveSubscription: { [_readValueForDescriptor] _ in
@@ -238,8 +238,8 @@ public struct Peripheral: Sendable {
 
   public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
     didWriteValueForDescriptor
-      .filterFirstValueOrThrow(where: {
-        $0.uuid == descriptor.uuid
+      .filterFirstValueOrThrow(where: { [uuid = descriptor.uuid] in
+        $0.uuid == uuid
       })
       .map { _ in }
       .handleEvents(receiveSubscription: { [_writeValueForDescriptor] _ in
@@ -292,7 +292,7 @@ public struct Peripheral: Sendable {
     discoverCharacteristics(withUUIDs: [characteristicUUID], inServiceWithUUID: serviceUUID)
       .tryMap { characteristics in
         // assume core bluetooth won't send us a characteristic list without the characteristic we expect
-        guard let characteristic = characteristics.first(where: { characteristic in characteristic.uuid == characteristicUUID }) else {
+        guard let characteristic = characteristics.first(where: { c in c.uuid == characteristicUUID }) else {
           throw PeripheralError.characteristicNotFound(characteristicUUID)
         }
         return characteristic
@@ -405,8 +405,8 @@ public struct Peripheral: Sendable {
   public func listenForUpdates(on characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
     didUpdateValueForCharacteristic
     // not limiting to `.first()` here as callers may want long-lived listening for value changes
-      .filter({ (readCharacteristic, error) -> Bool in
-        return readCharacteristic.uuid == characteristic.uuid
+      .filter({ [uuid = characteristic.uuid] (readCharacteristic, error) -> Bool in
+        readCharacteristic.uuid == uuid
       })
       .selectValueOrThrowError()
       .map(\.value)
@@ -438,8 +438,8 @@ public struct Peripheral: Sendable {
       self.listenForUpdates(on: characteristic),
       
       didUpdateNotificationState
-        .filterFirstValueOrThrow(where: {
-          $0.uuid == characteristic.uuid
+        .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
+          $0.uuid == uuid
         })
         .ignoreOutput(setOutputType: Data?.self)
     )
