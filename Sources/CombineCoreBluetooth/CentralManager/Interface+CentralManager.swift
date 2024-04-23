@@ -83,24 +83,24 @@ public struct CentralManager: Sendable {
   }
   
   public func connect(_ peripheral: Peripheral, options: PeripheralConnectionOptions? = nil) -> AnyPublisher<Peripheral, Error> {
-      Publishers.Merge(
-        didConnectPeripheral
-          .filter { $0 == peripheral }
-          .setFailureType(to: Error.self),
-        didFailToConnectPeripheral
-          .filter { p, _ in p == peripheral }
-          .tryMap { _, error in
-            throw error ?? CentralManagerError.unknownConnectionFailure
-          }
-      )
-      .prefix(1)
-      .handleEvents(receiveSubscription: { _ in
-        _connectToPeripheral(peripheral, options)
-      }, receiveCancel: {
-        _cancelPeripheralConnection(peripheral)
-      })
-      .shareCurrentValue()
-      .eraseToAnyPublisher()
+    Publishers.Merge(
+      didConnectPeripheral
+        .filter { [id = peripheral.id] p in p.id == id }
+        .setFailureType(to: Error.self),
+      didFailToConnectPeripheral
+        .filter { [id = peripheral.id] p, _ in p.id == id }
+        .tryMap { _, error in
+          throw error ?? CentralManagerError.unknownConnectionFailure
+        }
+    )
+    .prefix(1)
+    .handleEvents(receiveSubscription: { _ in
+      _connectToPeripheral(peripheral, options)
+    }, receiveCancel: {
+      _cancelPeripheralConnection(peripheral)
+    })
+    .shareCurrentValue()
+    .eraseToAnyPublisher()
   }
   
   public func cancelPeripheralConnection(_ peripheral: Peripheral) {
@@ -117,10 +117,10 @@ public struct CentralManager: Sendable {
   public func monitorConnection(for peripheral: Peripheral) -> AnyPublisher<Bool, Never> {
     Publishers.Merge(
       didConnectPeripheral
-        .filter { p in p == peripheral }
+        .filter { [id = peripheral.id] p in p.id == id }
         .map { _ in true },
       didDisconnectPeripheral
-        .filter { (p, error) in p == peripheral }
+        .filter { [id = peripheral.id] p, _ in p.id == id }
         .map { _ in false }
     )
     .eraseToAnyPublisher()
