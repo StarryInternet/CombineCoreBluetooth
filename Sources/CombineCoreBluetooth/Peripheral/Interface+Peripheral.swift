@@ -39,6 +39,7 @@ public struct Peripheral: Sendable {
   public var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
   public var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
   public var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
+  public var didUpdateMTU:                            AnyPublisher<Int, Never>
 
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>
@@ -474,6 +475,7 @@ extension Peripheral {
     let didWriteValueForDescriptor:              PassthroughSubject<(CBDescriptor, Error?), Never>     = .init()
     let isReadyToSendWriteWithoutResponse:       PassthroughSubject<Void, Never>                       = .init()
     let didOpenChannel:                          PassthroughSubject<(L2CAPChannel?, Error?), Never>    = .init()
+    let didUpdateMTU:                            PassthroughSubject<Int, Never>                        = .init()
   }
 }
 

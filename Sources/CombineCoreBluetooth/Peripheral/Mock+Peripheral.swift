@@ -31,6 +31,7 @@ extension Peripheral {
     didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never> = _Internal._unimplemented("didUpdateValueForDescriptor"),
     didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never> = _Internal._unimplemented("didWriteValueForDescriptor"),
     didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never> = _Internal._unimplemented("didOpenChannel"),
+    didUpdateMTU:                            AnyPublisher<Int, Never> = _Internal._unimplemented("didUpdateMTU"),
     isReadyToSendWriteWithoutResponse:       AnyPublisher<Void, Never> = _Internal._unimplemented("isReadyToSendWriteWithoutResponse"),
     nameUpdates:                             AnyPublisher<String?, Never> = _Internal._unimplemented("nameUpdates"),
     invalidatedServiceUpdates:               AnyPublisher<[CBService], Never> = _Internal._unimplemented("invalidatedServiceUpdates")
@@ -68,6 +69,7 @@ extension Peripheral {
       didUpdateValueForDescriptor: didUpdateValueForDescriptor,
       didWriteValueForDescriptor: didWriteValueForDescriptor,
       didOpenChannel: didOpenChannel,
+      didUpdateMTU: didUpdateMTU,
 
       isReadyToSendWriteWithoutResponse: isReadyToSendWriteWithoutResponse,
       nameUpdates: nameUpdates,

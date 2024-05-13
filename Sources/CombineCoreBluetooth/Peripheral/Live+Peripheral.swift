@@ -46,6 +46,7 @@ extension Peripheral {
       didUpdateValueForDescriptor: delegate.didUpdateValueForDescriptor.eraseToAnyPublisher(),
       didWriteValueForDescriptor: delegate.didWriteValueForDescriptor.eraseToAnyPublisher(),
       didOpenChannel: delegate.didOpenChannel.eraseToAnyPublisher(),
+      didUpdateMTU: delegate.didUpdateMTU.eraseToAnyPublisher(),
 
       isReadyToSendWriteWithoutResponse: delegate.isReadyToSendWriteWithoutResponse.eraseToAnyPublisher(),
       nameUpdates: delegate.nameUpdates.eraseToAnyPublisher(),
@@ -113,5 +114,9 @@ extension Peripheral.Delegate: CBPeripheralDelegate {
 
   func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
     didOpenChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
+  }
+
+  func peripheral(_ peripheral: CBPeripheral, didUpdateMTU mtu: Int) {
+    didUpdateMTU.send(mtu)
   }
 }
