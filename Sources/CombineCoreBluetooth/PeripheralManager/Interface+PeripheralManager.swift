@@ -149,7 +149,5 @@ extension PeripheralManager {
   }
   
   @objc(CCBPeripheralManagerRestorableDelegate)
-  class RestorableDelegate: Delegate {
-    
-  }
+  class RestorableDelegate: Delegate, @unchecked Sendable {}
 }
