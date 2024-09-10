@@ -1,4 +1,5 @@
 @preconcurrency import Combine
+@preconcurrency import CoreBluetooth
 import Foundation
 
 public struct CentralManager: Sendable {
@@ -127,7 +128,7 @@ public struct CentralManager: Sendable {
   }
   
   /// Configuration options used when creating a `CentralManager`.
-  public struct CreationOptions {
+  public struct CreationOptions: Sendable {
     /// If true, display a warning dialog to the user when the `CentralManager` is instantiated if Bluetooth is powered off
     public var showPowerAlert: Bool?
     /// A unique identifier for the Central Manager that's being instantiated. This identifier is used by the system to identify a specific  CBCentralManager  instance for restoration and, therefore, must remain the same for subsequent application executions in order for the manager to be restored.
@@ -140,7 +141,7 @@ public struct CentralManager: Sendable {
   }
   
   /// Options used when scanning for peripherals.
-  public struct ScanOptions {
+  public struct ScanOptions: Sendable {
     /// Whether or not the scan should filter duplicate peripheral discoveries
     public var allowDuplicates: Bool?
     /// Causes the scan to also look for peripherals soliciting any of the services contained in the list.
@@ -184,5 +185,5 @@ public struct CentralManager: Sendable {
   }
   
   @objc(CCBCentralManagerRestorableDelegate)
-  class RestorableDelegate: Delegate, @unchecked Sendable {}
+  final class RestorableDelegate: Delegate, @unchecked Sendable {}
 }
