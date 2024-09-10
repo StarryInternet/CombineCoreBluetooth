@@ -6,15 +6,15 @@ import Foundation
 public struct Peripheral: Sendable {
   let rawValue: CBPeripheral?
   let delegate: Delegate?
-
+  
   public var _name: @Sendable () -> String?
   public var _identifier: @Sendable () -> UUID
   public var _state: @Sendable () -> CBPeripheralState
   public var _services: @Sendable () -> [CBService]?
   public var _canSendWriteWithoutResponse: @Sendable () -> Bool
-
+  
   public var _ancsAuthorized: @Sendable () -> Bool
-
+  
   public var _readRSSI: @Sendable () -> Void
   public var _discoverServices: @Sendable (_ serviceUUIDs: [CBUUID]?) -> Void
   public var _discoverIncludedServices: @Sendable (_ includedServiceUUIDs: [CBUUID]?, _ service: CBService) -> Void
@@ -27,7 +27,7 @@ public struct Peripheral: Sendable {
   public var _readValueForDescriptor: @Sendable (_ descriptor: CBDescriptor) -> Void
   public var _writeValueForDescriptor: @Sendable (_ data: Data, _ descriptor: CBDescriptor) -> Void
   public var _openL2CAPChannel: @Sendable (_ PSM: CBL2CAPPSM) -> Void
-
+  
   public var didReadRSSI:                             AnyPublisher<Result<Double, Error>, Never>
   public var didDiscoverServices:                     AnyPublisher<([CBService], Error?), Never>
   public var didDiscoverIncludedServices:             AnyPublisher<(CBService, Error?), Never>
@@ -39,38 +39,38 @@ public struct Peripheral: Sendable {
   public var didUpdateValueForDescriptor:             AnyPublisher<(CBDescriptor, Error?), Never>
   public var didWriteValueForDescriptor:              AnyPublisher<(CBDescriptor, Error?), Never>
   public var didOpenChannel:                          AnyPublisher<(L2CAPChannel?, Error?), Never>
-
+  
   public var isReadyToSendWriteWithoutResponse: AnyPublisher<Void, Never>
   public var nameUpdates: AnyPublisher<String?, Never>
   public var invalidatedServiceUpdates: AnyPublisher<[CBService], Never>
-
+  
   // MARK: - Implementations
-
+  
   public var name: String? {
     _name()
   }
-
+  
   public var identifier: UUID {
     _identifier()
   }
-
+  
   public var state: CBPeripheralState {
     _state()
   }
-
+  
   public var services: [CBService]? {
     _services()
   }
-
+  
   public var canSendWriteWithoutResponse: Bool {
     _canSendWriteWithoutResponse()
   }
-
+  
   @available(macOS, unavailable)
   public var ancsAuthorized: Bool {
     _ancsAuthorized()
   }
-
+  
   public func readRSSI() -> AnyPublisher<Double, Error> {
     didReadRSSI
       .tryMap { result in
@@ -82,7 +82,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func discoverServices(_ serviceUUIDs: [CBUUID]?) -> AnyPublisher<[CBService], Error> {
     didDiscoverServices
       .filterFirstValueOrThrow(where: { services in
@@ -99,7 +99,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func discoverIncludedServices(_ serviceUUIDS: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBService]?, Error> {
     didDiscoverIncludedServices
       .filterFirstValueOrThrow(where: { discoveredService in
@@ -119,7 +119,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func discoverCharacteristics(_ characteristicUUIDs: [CBUUID]?, for service: CBService) -> AnyPublisher<[CBCharacteristic], Error> {
     didDiscoverCharacteristics
       .filterFirstValueOrThrow(where: { discoveredService in
@@ -139,7 +139,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func readValue(for characteristic: CBCharacteristic) -> AnyPublisher<Data?, Error> {
     didUpdateValueForCharacteristic
       .filterFirstValueOrThrow(where: {
@@ -151,11 +151,11 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func maximumWriteValueLength(for writeType: CBCharacteristicWriteType) -> Int {
     _maximumWriteValueLength(writeType)
   }
-
+  
   public func writeValue(_ value: Data, for characteristic: CBCharacteristic, type writeType: CBCharacteristicWriteType) -> AnyPublisher<Void, Error> {
     if writeType == .withoutResponse {
       return writeValueWithoutResponse(value, for: characteristic)
@@ -163,7 +163,7 @@ public struct Peripheral: Sendable {
       return writeValueWithResponse(value, for: characteristic)
     }
   }
-
+  
   private func writeValueWithoutResponse(_ value: Data, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     if characteristic.properties.contains(.writeWithoutResponse) {
       // Return an empty publisher here, since we never expect to receive a response.
@@ -187,7 +187,7 @@ public struct Peripheral: Sendable {
       .eraseToAnyPublisher()
     }
   }
-
+  
   private func writeValueWithResponse(_ value: Data, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     didWriteValueForCharacteristic
       .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
@@ -199,7 +199,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func setNotifyValue(_ enabled: Bool, for characteristic: CBCharacteristic) -> AnyPublisher<Void, Error> {
     didUpdateNotificationState
       .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
@@ -211,7 +211,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func discoverDescriptors(for characteristic: CBCharacteristic) -> AnyPublisher<[CBDescriptor]?, Error> {
     didDiscoverDescriptorsForCharacteristic
       .filterFirstValueOrThrow(where: { [uuid = characteristic.uuid] in
@@ -223,7 +223,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func readValue(for descriptor: CBDescriptor) -> AnyPublisher<Any?, Error> {
     didUpdateValueForDescriptor
       .filterFirstValueOrThrow(where: { [uuid = descriptor.uuid] in
@@ -235,7 +235,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func writeValue(_ value: Data, for descriptor: CBDescriptor) -> AnyPublisher<Void, Error> {
     didWriteValueForDescriptor
       .filterFirstValueOrThrow(where: { [uuid = descriptor.uuid] in
@@ -247,7 +247,7 @@ public struct Peripheral: Sendable {
       })
       .shareCurrentValue()
   }
-
+  
   public func openL2CAPChannel(_ psm: CBL2CAPPSM) -> AnyPublisher<L2CAPChannel, Error> {
     didOpenChannel
       .filterFirstValueOrThrow(where: { channel, error in
@@ -262,7 +262,7 @@ public struct Peripheral: Sendable {
   }
   
   // MARK: - Convenience methods
-
+  
   /// Discovers the service with the given service UUID, then discovers characteristics with the given UUIDs and returns those.
   /// - Parameters:
   ///   - characteristicUUIDs: The UUIDs of the characteristics you want to discover.
@@ -282,7 +282,7 @@ public struct Peripheral: Sendable {
       .first()
       .eraseToAnyPublisher()
   }
-
+  
   /// Discovers the service with the given service UUID, then discovers the characteristic with the given UUID and returns that.
   /// - Parameters:
   ///   - characteristicUUIDs: The UUID of the characteristic you want to discover.
@@ -299,7 +299,7 @@ public struct Peripheral: Sendable {
       }
       .eraseToAnyPublisher()
   }
-
+  
   /// Reads the value in the characteristic with the given UUID from the service with the given UUID.
   /// - Parameters:
   ///   - characteristicUUID: The UUID of the characteristic to read from.
@@ -313,7 +313,7 @@ public struct Peripheral: Sendable {
       .first()
       .eraseToAnyPublisher()
   }
-
+  
   /// Writes the given data to the characteristic with the given UUID in the service in the given UUID
   /// - Parameters:
   ///   - value: The data to write
@@ -395,7 +395,7 @@ public struct Peripheral: Sendable {
       .first()
       .eraseToAnyPublisher()
   }
-
+  
   /// Returns a long-lived publisher that receives all value updates for the given characteristic. Allows for many listeners to be updated for a single read, or for indications/notifications of a characteristic's value changing.
   ///
   /// This function does not subscribe to notifications or indications on its own.
@@ -460,20 +460,81 @@ public struct Peripheral: Sendable {
 extension Peripheral {
   @objc(CCBPeripheralDelegate)
   final class Delegate: NSObject, Sendable {
-    let nameUpdates:                             PassthroughSubject<String?, Never>                    = .init()
-    let didInvalidateServices:                   PassthroughSubject<[CBService], Never>                = .init()
-    let didReadRSSI:                             PassthroughSubject<Result<Double, Error>, Never>      = .init()
-    let didDiscoverServices:                     PassthroughSubject<([CBService], Error?), Never>      = .init()
-    let didDiscoverIncludedServices:             PassthroughSubject<(CBService, Error?), Never>        = .init()
-    let didDiscoverCharacteristics:              PassthroughSubject<(CBService, Error?), Never>        = .init()
-    let didUpdateValueForCharacteristic:         PassthroughSubject<(CBCharacteristic, Error?), Never> = .init()
-    let didWriteValueForCharacteristic:          PassthroughSubject<(CBCharacteristic, Error?), Never> = .init()
-    let didUpdateNotificationState:              PassthroughSubject<(CBCharacteristic, Error?), Never> = .init()
-    let didDiscoverDescriptorsForCharacteristic: PassthroughSubject<(CBCharacteristic, Error?), Never> = .init()
-    let didUpdateValueForDescriptor:             PassthroughSubject<(CBDescriptor, Error?), Never>     = .init()
-    let didWriteValueForDescriptor:              PassthroughSubject<(CBDescriptor, Error?), Never>     = .init()
-    let isReadyToSendWriteWithoutResponse:       PassthroughSubject<Void, Never>                       = .init()
-    let didOpenChannel:                          PassthroughSubject<(L2CAPChannel?, Error?), Never>    = .init()
+    let actionSubject = PassthroughSubject<Action, Never>()
+    
+    enum Action: @unchecked Sendable {
+      case nameUpdates(String?)
+      case didInvalidateServices([CBService])
+      case didReadRSSI(Result<Double, Error>)
+      case didDiscoverServices(([CBService], Error?))
+      case didDiscoverIncludedServices((CBService, Error?))
+      case didDiscoverCharacteristics((CBService, Error?))
+      case didUpdateValueForCharacteristic((CBCharacteristic, Error?))
+      case didWriteValueForCharacteristic((CBCharacteristic, Error?))
+      case didUpdateNotificationState((CBCharacteristic, Error?))
+      case didDiscoverDescriptorsForCharacteristic((CBCharacteristic, Error?))
+      case didUpdateValueForDescriptor((CBDescriptor, Error?))
+      case didWriteValueForDescriptor((CBDescriptor, Error?))
+      case isReadyToSendWriteWithoutResponse
+      case didOpenChannel((L2CAPChannel?, Error?))
+      
+      var nameUpdates: (String?)? {
+        guard case let .nameUpdates(value) = self else { return nil }
+        return value
+      }
+      var didInvalidateServices: [CBService]? {
+        guard case let .didInvalidateServices(value) = self else { return nil }
+        return value
+      }
+      var didReadRSSI: Result<Double, Error>? {
+        guard case let .didReadRSSI(value) = self else { return nil }
+        return value
+      }
+      var didDiscoverServices: ([CBService], Error?)? {
+        guard case let .didDiscoverServices(value) = self else { return nil }
+        return value
+      }
+      var didDiscoverIncludedServices: (CBService, Error?)? {
+        guard case let .didDiscoverIncludedServices(value) = self else { return nil }
+        return value
+      }
+      var didDiscoverCharacteristics: (CBService, Error?)? {
+        guard case let .didDiscoverCharacteristics(value) = self else { return nil }
+        return value
+      }
+      var didUpdateValueForCharacteristic: (CBCharacteristic, Error?)? {
+        guard case let .didUpdateValueForCharacteristic(value) = self else { return nil }
+        return value
+      }
+      var didWriteValueForCharacteristic: (CBCharacteristic, Error?)? {
+        guard case let .didWriteValueForCharacteristic(value) = self else { return nil }
+        return value
+      }
+      var didUpdateNotificationState: (CBCharacteristic, Error?)? {
+        guard case let .didUpdateNotificationState(value) = self else { return nil }
+        return value
+      }
+      var didDiscoverDescriptorsForCharacteristic: (CBCharacteristic, Error?)? {
+        guard case let .didDiscoverDescriptorsForCharacteristic(value) = self else { return nil }
+        return value
+      }
+      var didUpdateValueForDescriptor: (CBDescriptor, Error?)? {
+        guard case let .didUpdateValueForDescriptor(value) = self else { return nil }
+        return value
+      }
+      var didWriteValueForDescriptor: (CBDescriptor, Error?)? {
+        guard case let .didWriteValueForDescriptor(value) = self else { return nil }
+        return value
+      }
+      var isReadyToSendWriteWithoutResponse: ()? {
+        guard case .isReadyToSendWriteWithoutResponse = self else { return nil }
+        return ()
+      }
+      var didOpenChannel: (L2CAPChannel?, Error?)? {
+        guard case let .didOpenChannel(value) = self else { return nil }
+        return value
+      }
+    }
   }
 }
 
@@ -485,7 +546,7 @@ extension Peripheral: Equatable, Hashable {
   public static func == (lhs: Self, rhs: Self) -> Bool {
     lhs.identifier == rhs.identifier
   }
-
+  
   public func hash(into hasher: inout Hasher) {
     hasher.combine(identifier)
   }

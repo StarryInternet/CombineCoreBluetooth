@@ -53,14 +53,14 @@ extension CentralManager {
 #endif
       },
       
-      didUpdateState: delegate.didUpdateState.eraseToAnyPublisher(),
-      willRestoreState: delegate.willRestoreState.eraseToAnyPublisher(),
-      didConnectPeripheral: delegate.didConnectPeripheral.eraseToAnyPublisher(),
-      didFailToConnectPeripheral: delegate.didFailToConnectPeripheral.eraseToAnyPublisher(),
-      didDisconnectPeripheral: delegate.didDisconnectPeripheral.eraseToAnyPublisher(),
-      connectionEventDidOccur: delegate.connectionEventDidOccur.eraseToAnyPublisher(),
-      didDiscoverPeripheral: delegate.didDiscoverPeripheral.eraseToAnyPublisher(),
-      didUpdateACNSAuthorizationForPeripheral: delegate.didUpdateACNSAuthorizationForPeripheral.eraseToAnyPublisher()
+      didUpdateState: delegate.actionSubject.compactMap { $0.didUpdateState }.eraseToAnyPublisher(),
+      willRestoreState: delegate.actionSubject.compactMap { $0.willRestoreState }.eraseToAnyPublisher(),
+      didConnectPeripheral: delegate.actionSubject.compactMap { $0.didConnectPeripheral }.eraseToAnyPublisher(),
+      didFailToConnectPeripheral: delegate.actionSubject.compactMap { $0.didFailToConnectPeripheral }.eraseToAnyPublisher(),
+      didDisconnectPeripheral: delegate.actionSubject.compactMap { $0.didDisconnectPeripheral }.eraseToAnyPublisher(),
+      connectionEventDidOccur: delegate.actionSubject.compactMap { $0.connectionEventDidOccur }.eraseToAnyPublisher(),
+      didDiscoverPeripheral: delegate.actionSubject.compactMap { $0.didDiscoverPeripheral }.eraseToAnyPublisher(),
+      didUpdateACNSAuthorizationForPeripheral: delegate.actionSubject.compactMap { $0.didUpdateACNSAuthorizationForPeripheral }.eraseToAnyPublisher()
     )
   }
 }
@@ -87,44 +87,44 @@ extension CentralManager.PeripheralConnectionOptions {
 
 extension CentralManager.Delegate: CBCentralManagerDelegate {
   func centralManagerDidUpdateState(_ central: CBCentralManager) {
-    didUpdateState.send(central.state)
+    actionSubject.send(.didUpdateState(central.state))
   }
   
   func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-    didConnectPeripheral.send(Peripheral(cbperipheral: peripheral))
+    actionSubject.send(.didConnectPeripheral(Peripheral(cbperipheral: peripheral)))
   }
   
   func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-    didFailToConnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
+    actionSubject.send(.didFailToConnectPeripheral((Peripheral(cbperipheral: peripheral), error)))
   }
   
   func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-    didDisconnectPeripheral.send((Peripheral(cbperipheral: peripheral), error))
+    actionSubject.send(.didDisconnectPeripheral((Peripheral(cbperipheral: peripheral), error)))
   }
   
   func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-    didDiscoverPeripheral.send(
+    actionSubject.send(.didDiscoverPeripheral(
       PeripheralDiscovery(
         peripheral: Peripheral(cbperipheral: peripheral),
         advertisementData: AdvertisementData(advertisementData),
         rssi: RSSI.doubleValue
       )
-    )
+    ))
   }
   
 #if os(iOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
   func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
-    connectionEventDidOccur.send((event, Peripheral(cbperipheral: peripheral)))
+    actionSubject.send(.connectionEventDidOccur((event, Peripheral(cbperipheral: peripheral))))
   }
   
   func centralManager(_ central: CBCentralManager, didUpdateANCSAuthorizationFor peripheral: CBPeripheral) {
-    didUpdateACNSAuthorizationForPeripheral.send(Peripheral(cbperipheral: peripheral))
+    actionSubject.send(.didUpdateACNSAuthorizationForPeripheral(Peripheral(cbperipheral: peripheral)))
   }
 #endif
 }
 
 extension CentralManager.RestorableDelegate {
   func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-    willRestoreState.send(dict)
+    actionSubject.send(.willRestoreState(dict))
   }
 }

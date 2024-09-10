@@ -174,14 +174,51 @@ public struct CentralManager: Sendable {
   
   @objc(CCBCentralManagerDelegate)
   class Delegate: NSObject, @unchecked Sendable {
-    let didUpdateState: PassthroughSubject<CBManagerState, Never> = .init()
-    let willRestoreState: PassthroughSubject<[String: Any], Never> = .init()
-    let didConnectPeripheral: PassthroughSubject<Peripheral, Never> = .init()
-    let didFailToConnectPeripheral: PassthroughSubject<(Peripheral, Error?), Never> = .init()
-    let didDisconnectPeripheral: PassthroughSubject<(Peripheral, Error?), Never> = .init()
-    let connectionEventDidOccur: PassthroughSubject<(CBConnectionEvent, Peripheral), Never> = .init()
-    let didDiscoverPeripheral: PassthroughSubject<PeripheralDiscovery, Never> = .init()
-    let didUpdateACNSAuthorizationForPeripheral: PassthroughSubject<Peripheral, Never> = .init()
+    let actionSubject = PassthroughSubject<Action, Never>()
+    
+    enum Action {
+      case didUpdateState(CBManagerState)
+      case willRestoreState([String: Any])
+      case didConnectPeripheral(Peripheral)
+      case didFailToConnectPeripheral((Peripheral, Error?))
+      case didDisconnectPeripheral((Peripheral, Error?))
+      case connectionEventDidOccur((CBConnectionEvent, Peripheral))
+      case didDiscoverPeripheral(PeripheralDiscovery)
+      case didUpdateACNSAuthorizationForPeripheral(Peripheral)
+      
+      var didUpdateState: CBManagerState? {
+        guard case let .didUpdateState(value) = self else { return nil }
+        return value
+      }
+      var willRestoreState: [String: Any]? {
+        guard case let .willRestoreState(value) = self else { return nil }
+        return value
+      }
+      var didConnectPeripheral: Peripheral? {
+        guard case let .didConnectPeripheral(value) = self else { return nil }
+        return value
+      }
+      var didFailToConnectPeripheral: (Peripheral, Error?)? {
+        guard case let .didFailToConnectPeripheral(value) = self else { return nil }
+        return value
+      }
+      var didDisconnectPeripheral: (Peripheral, Error?)? {
+        guard case let .didDisconnectPeripheral(value) = self else { return nil }
+        return value
+      }
+      var connectionEventDidOccur: (CBConnectionEvent, Peripheral)? {
+        guard case let .connectionEventDidOccur(value) = self else { return nil }
+        return value
+      }
+      var didDiscoverPeripheral: PeripheralDiscovery? {
+        guard case let .didDiscoverPeripheral(value) = self else { return nil }
+        return value
+      }
+      var didUpdateACNSAuthorizationForPeripheral: Peripheral? {
+        guard case let .didUpdateACNSAuthorizationForPeripheral(value) = self else { return nil }
+        return value
+      }
+    }
   }
   
   @objc(CCBCentralManagerRestorableDelegate)

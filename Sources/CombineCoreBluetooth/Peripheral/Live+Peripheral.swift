@@ -35,83 +35,83 @@ extension Peripheral {
       _writeValueForDescriptor: { cbperipheral.writeValue($0, for: $1) },
       _openL2CAPChannel: { cbperipheral.openL2CAPChannel($0) },
 
-      didReadRSSI: delegate.didReadRSSI.eraseToAnyPublisher(),
-      didDiscoverServices: delegate.didDiscoverServices.eraseToAnyPublisher(),
-      didDiscoverIncludedServices: delegate.didDiscoverIncludedServices.eraseToAnyPublisher(),
-      didDiscoverCharacteristics: delegate.didDiscoverCharacteristics.eraseToAnyPublisher(),
-      didUpdateValueForCharacteristic: delegate.didUpdateValueForCharacteristic.eraseToAnyPublisher(),
-      didWriteValueForCharacteristic: delegate.didWriteValueForCharacteristic.eraseToAnyPublisher(),
-      didUpdateNotificationState: delegate.didUpdateNotificationState.eraseToAnyPublisher(),
-      didDiscoverDescriptorsForCharacteristic: delegate.didDiscoverDescriptorsForCharacteristic.eraseToAnyPublisher(),
-      didUpdateValueForDescriptor: delegate.didUpdateValueForDescriptor.eraseToAnyPublisher(),
-      didWriteValueForDescriptor: delegate.didWriteValueForDescriptor.eraseToAnyPublisher(),
-      didOpenChannel: delegate.didOpenChannel.eraseToAnyPublisher(),
+      didReadRSSI: delegate.actionSubject.compactMap { $0.didReadRSSI }.eraseToAnyPublisher(),
+      didDiscoverServices: delegate.actionSubject.compactMap { $0.didDiscoverServices }.eraseToAnyPublisher(),
+      didDiscoverIncludedServices: delegate.actionSubject.compactMap { $0.didDiscoverIncludedServices }.eraseToAnyPublisher(),
+      didDiscoverCharacteristics: delegate.actionSubject.compactMap { $0.didDiscoverCharacteristics }.eraseToAnyPublisher(),
+      didUpdateValueForCharacteristic: delegate.actionSubject.compactMap { $0.didUpdateValueForCharacteristic }.eraseToAnyPublisher(),
+      didWriteValueForCharacteristic: delegate.actionSubject.compactMap { $0.didWriteValueForCharacteristic }.eraseToAnyPublisher(),
+      didUpdateNotificationState: delegate.actionSubject.compactMap { $0.didUpdateNotificationState }.eraseToAnyPublisher(),
+      didDiscoverDescriptorsForCharacteristic: delegate.actionSubject.compactMap { $0.didDiscoverDescriptorsForCharacteristic }.eraseToAnyPublisher(),
+      didUpdateValueForDescriptor: delegate.actionSubject.compactMap { $0.didUpdateValueForDescriptor }.eraseToAnyPublisher(),
+      didWriteValueForDescriptor: delegate.actionSubject.compactMap { $0.didWriteValueForDescriptor }.eraseToAnyPublisher(),
+      didOpenChannel: delegate.actionSubject.compactMap { $0.didOpenChannel }.eraseToAnyPublisher(),
 
-      isReadyToSendWriteWithoutResponse: delegate.isReadyToSendWriteWithoutResponse.eraseToAnyPublisher(),
-      nameUpdates: delegate.nameUpdates.eraseToAnyPublisher(),
-      invalidatedServiceUpdates: delegate.didInvalidateServices.eraseToAnyPublisher()
+      isReadyToSendWriteWithoutResponse: delegate.actionSubject.compactMap { $0.isReadyToSendWriteWithoutResponse }.eraseToAnyPublisher(),
+      nameUpdates: delegate.actionSubject.compactMap { $0.nameUpdates }.eraseToAnyPublisher(),
+      invalidatedServiceUpdates: delegate.actionSubject.compactMap { $0.didInvalidateServices }.eraseToAnyPublisher()
     )
   }
 }
 
 extension Peripheral.Delegate: CBPeripheralDelegate {
   func peripheralDidUpdateName(_ peripheral: CBPeripheral) {
-    nameUpdates.send(peripheral.name)
+    actionSubject.send(.nameUpdates(peripheral.name))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-    didInvalidateServices.send(invalidatedServices)
+    actionSubject.send(.didInvalidateServices(invalidatedServices))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
     if let error = error {
-      didReadRSSI.send(.failure(error))
+      actionSubject.send(.didReadRSSI(.failure(error)))
     } else {
-      didReadRSSI.send(.success(RSSI.doubleValue))
+      actionSubject.send(.didReadRSSI(.success(RSSI.doubleValue)))
     }
   }
 
   func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-    didDiscoverServices.send((peripheral.services ?? [], error))
+    actionSubject.send(.didDiscoverServices((peripheral.services ?? [], error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
-    didDiscoverIncludedServices.send((service, error))
+    actionSubject.send(.didDiscoverIncludedServices((service, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-    didDiscoverCharacteristics.send((service, error))
+    actionSubject.send(.didDiscoverCharacteristics((service, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-    didUpdateValueForCharacteristic.send((characteristic, error))
+    actionSubject.send(.didUpdateValueForCharacteristic((characteristic, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-    didWriteValueForCharacteristic.send((characteristic, error))
+    actionSubject.send(.didWriteValueForCharacteristic((characteristic, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-    didUpdateNotificationState.send((characteristic, error))
+    actionSubject.send(.didUpdateNotificationState((characteristic, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-    didDiscoverDescriptorsForCharacteristic.send((characteristic, error))
+    actionSubject.send(.didDiscoverDescriptorsForCharacteristic((characteristic, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-    didUpdateValueForDescriptor.send((descriptor, error))
+    actionSubject.send(.didUpdateValueForDescriptor((descriptor, error)))
   }
 
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
-    didWriteValueForDescriptor.send((descriptor, error))
+    actionSubject.send(.didWriteValueForDescriptor((descriptor, error)))
   }
 
   func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
-    isReadyToSendWriteWithoutResponse.send()
+    actionSubject.send(.isReadyToSendWriteWithoutResponse)
   }
 
   func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
-    didOpenChannel.send((channel.map(L2CAPChannel.init(channel:)), error))
+    actionSubject.send(.didOpenChannel((channel.map(L2CAPChannel.init(channel:)), error)))
   }
 }
