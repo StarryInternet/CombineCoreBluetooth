@@ -1,5 +1,5 @@
 @preconcurrency import Combine
-@preconcurrency import CoreBluetooth
+import CoreBluetooth
 import Foundation
 
 public struct CentralManager: Sendable {
@@ -8,7 +8,7 @@ public struct CentralManager: Sendable {
 #else
   public typealias Feature = CBCentralManager.Feature
 #endif
-  let delegate: Delegate?
+  let delegate: (any CentralManagerDelegate)?
 
   public var _state: @Sendable () -> CBManagerState
   public var _authorization: @Sendable () -> CBManagerAuthorization
@@ -26,7 +26,7 @@ public struct CentralManager: Sendable {
   public var _registerForConnectionEvents: @Sendable (_ options: [CBConnectionEventMatchingOption : Any]?) -> Void
   
   public var didUpdateState: AnyPublisher<CBManagerState, Never>
-  public var willRestoreState: AnyPublisher<[String: Any], Never>
+  public var willRestoreState: AnyPublisher<RestoreStateOptions?, Never>
   public var didConnectPeripheral: AnyPublisher<Peripheral, Never>
   public var didFailToConnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
   public var didDisconnectPeripheral: AnyPublisher<(Peripheral, Error?), Never>
@@ -141,7 +141,7 @@ public struct CentralManager: Sendable {
   }
   
   /// Options used when scanning for peripherals.
-  public struct ScanOptions: Sendable {
+  public struct ScanOptions: @unchecked Sendable {
     /// Whether or not the scan should filter duplicate peripheral discoveries
     public var allowDuplicates: Bool?
     /// Causes the scan to also look for peripherals soliciting any of the services contained in the list.
@@ -171,14 +171,38 @@ public struct CentralManager: Sendable {
       self.startDelay = startDelay
     }
   }
+    
+  public struct RestoreStateOptions: @unchecked Sendable {
+    /// An array of peripherals for use when restoring the state of a central manager.
+    var peripherals: [Peripheral]
+    
+    /// An array of service IDs for use when restoring state.
+    var scanServices: [CBUUID]
+    
+    /// A dictionary of peripheral scan options for use when restoring state.
+    var scanOptions: ScanOptions
+    
+    init?(_ dictionary: [String: Any]) {
+      guard let peripherals = dictionary[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral],
+            let scanServices = dictionary[CBCentralManagerRestoredStateScanServicesKey] as? [CBUUID],
+            let scanOptions = dictionary[CBCentralManagerRestoredStateScanOptionsKey] as? [String: Any]
+      else {
+        return nil
+      }
+      
+      self.peripherals = peripherals.map(Peripheral.init(cbperipheral:))
+      self.scanServices = scanServices
+      self.scanOptions = ScanOptions(scanOptions)
+    }
+  }
   
   @objc(CCBCentralManagerDelegate)
-  class Delegate: NSObject, @unchecked Sendable {
+  final class Delegate: NSObject, Sendable {
     let actionSubject = PassthroughSubject<Action, Never>()
     
-    enum Action {
+    enum Action: Sendable {
       case didUpdateState(CBManagerState)
-      case willRestoreState([String: Any])
+      case willRestoreState(RestoreStateOptions?)
       case didConnectPeripheral(Peripheral)
       case didFailToConnectPeripheral((Peripheral, Error?))
       case didDisconnectPeripheral((Peripheral, Error?))
@@ -190,7 +214,7 @@ public struct CentralManager: Sendable {
         guard case let .didUpdateState(value) = self else { return nil }
         return value
       }
-      var willRestoreState: [String: Any]? {
+      var willRestoreState: RestoreStateOptions? {
         guard case let .willRestoreState(value) = self else { return nil }
         return value
       }
@@ -222,5 +246,11 @@ public struct CentralManager: Sendable {
   }
   
   @objc(CCBCentralManagerRestorableDelegate)
-  final class RestorableDelegate: Delegate, @unchecked Sendable {}
+  final class RestorableDelegate: NSObject, Sendable {
+    let actionSubject = PassthroughSubject<Delegate.Action, Never>()
+  }
+}
+
+protocol CentralManagerDelegate: CBCentralManagerDelegate, Sendable {
+  var actionSubject: PassthroughSubject<CentralManager.Delegate.Action, Never> { get }
 }

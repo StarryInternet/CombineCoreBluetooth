@@ -17,7 +17,7 @@ extension CentralManager {
     registerForConnectionEvents: @escaping @Sendable ([CBConnectionEventMatchingOption : Any]?) -> Void = _Internal._unimplemented("registerForConnectionEvents"),
 
     didUpdateState: AnyPublisher<CBManagerState, Never> = _Internal._unimplemented("didUpdateState"),
-    willRestoreState: AnyPublisher<[String: Any], Never> = _Internal._unimplemented("willRestoreState"),
+    willRestoreState: AnyPublisher<RestoreStateOptions?, Never> = _Internal._unimplemented("willRestoreState"),
     didConnectPeripheral: AnyPublisher<Peripheral, Never> = _Internal._unimplemented("didConnectPeripheral"),
     didFailToConnectPeripheral: AnyPublisher<(Peripheral, Error?), Never> = _Internal._unimplemented("didFailToConnectToPeripheral"),
     didDisconnectPeripheral: AnyPublisher<(Peripheral, Error?), Never> = _Internal._unimplemented("didDisconnectPeripheral"),

@@ -4,7 +4,7 @@ import Foundation
 
 extension CentralManager {
   public static func live(_ options: ManagerCreationOptions? = nil) -> Self {
-    let delegate: Delegate = options?.restoreIdentifier != nil ? RestorableDelegate() : Delegate()
+    let delegate: any CentralManagerDelegate = options?.restoreIdentifier != nil ? RestorableDelegate() : Delegate()
     let centralManager = CBCentralManager(
       delegate: delegate,
       queue: DispatchQueue(label: "combine-core-bluetooth.central-manager", target: .global()),
@@ -66,6 +66,11 @@ extension CentralManager {
 }
 
 extension CentralManager.ScanOptions {
+  init(_ dictionary: [String: Any]) {
+    allowDuplicates = dictionary[CBCentralManagerScanOptionAllowDuplicatesKey] as? Bool
+    solicitedServiceUUIDs = dictionary[CBCentralManagerScanOptionSolicitedServiceUUIDsKey] as? [CBUUID]
+  }
+  
   var dictionary: [String: Any] {
     var dict: [String: Any] = [:]
     dict[CBCentralManagerScanOptionAllowDuplicatesKey] = allowDuplicates
@@ -85,7 +90,7 @@ extension CentralManager.PeripheralConnectionOptions {
   }
 }
 
-extension CentralManager.Delegate: CBCentralManagerDelegate {
+extension CentralManager.Delegate: CentralManagerDelegate {
   func centralManagerDidUpdateState(_ central: CBCentralManager) {
     actionSubject.send(.didUpdateState(central.state))
   }
@@ -123,8 +128,44 @@ extension CentralManager.Delegate: CBCentralManagerDelegate {
 #endif
 }
 
-extension CentralManager.RestorableDelegate {
+extension CentralManager.RestorableDelegate: CentralManagerDelegate {
+  func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    actionSubject.send(.didUpdateState(central.state))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    actionSubject.send(.didConnectPeripheral(Peripheral(cbperipheral: peripheral)))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    actionSubject.send(.didFailToConnectPeripheral((Peripheral(cbperipheral: peripheral), error)))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    actionSubject.send(.didDisconnectPeripheral((Peripheral(cbperipheral: peripheral), error)))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    actionSubject.send(.didDiscoverPeripheral(
+      PeripheralDiscovery(
+        peripheral: Peripheral(cbperipheral: peripheral),
+        advertisementData: AdvertisementData(advertisementData),
+        rssi: RSSI.doubleValue
+      )
+    ))
+  }
+  
+#if os(iOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+  func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
+    actionSubject.send(.connectionEventDidOccur((event, Peripheral(cbperipheral: peripheral))))
+  }
+  
+  func centralManager(_ central: CBCentralManager, didUpdateANCSAuthorizationFor peripheral: CBPeripheral) {
+    actionSubject.send(.didUpdateACNSAuthorizationForPeripheral(Peripheral(cbperipheral: peripheral)))
+  }
+#endif
+  
   func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
-    actionSubject.send(.willRestoreState(dict))
+    actionSubject.send(.willRestoreState(CentralManager.RestoreStateOptions(dict)))
   }
 }
