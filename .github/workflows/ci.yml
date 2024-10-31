@@ -51,7 +51,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=iOS Simulator,OS=latest,name=Any iOS Simulator Device" \
+           -destination "platform=iOS Simulator,OS=latest,name=iPhone 16" \
            -sdk iphonesimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
@@ -66,7 +66,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=tvOS Simulator,OS=latest,name=Any tvOS Simulator Device" \
+           -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" \
            -sdk appletvsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
@@ -81,7 +81,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=watchOS Simulator,OS=latest,name=Any watchOS Simulator Device" \
+           -destination "platform=watchOS Simulator,OS=latest,name=Apple Watch Ultra 2 (49mm)" \
            -sdk watchsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
@@ -96,7 +96,7 @@ jobs:
           set -o pipefail && xcodebuild \
            -scheme CombineCoreBluetooth \
            -workspace ./CombineCoreBluetooth.xcworkspace/ \
-           -destination "platform=visionOS Simulator,OS=latest,name=Any visionOS Simulator Device" \
+           -destination "platform=visionOS Simulator,OS=latest,name=Apple Vision Pro" \
            -sdk xrsimulator \
            -enableCodeCoverage YES \
            -disableAutomaticPackageResolution \
