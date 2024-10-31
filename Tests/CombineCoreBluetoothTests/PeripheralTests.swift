@@ -281,27 +281,25 @@ extension Publisher {
 }
 
 extension Publisher where Output: Sendable {
-  func firstValue() async throws -> Output? {
-    try await values.first(where: { _ in true })
-  }
-  
-  private var values: AsyncThrowingStream<Output, Error> {
-    AsyncThrowingStream { continuation in
-      let cancellable: AnyCancellable = sink(
+  func firstValue() async throws -> Output {
+    try await withCheckedThrowingContinuation { c in
+      var cancellation: AnyCancellable?
+      cancellation = self.first().sink(
         receiveCompletion: { completion in
-          switch completion {
-          case .finished:
-            continuation.finish()
-          case .failure(let error):
-            continuation.finish(throwing: error)
+          if case let .failure(error) = completion {
+            c.resume(throwing: error)
+            cancellation = nil
+          } else {
+            if cancellation != nil {
+              c.resume(throwing: CancellationError())
+            }
+            cancellation = nil
           }
         }, receiveValue: { value in
-          continuation.yield(value)
+          c.resume(returning: value)
+          cancellation = nil
         }
       )
-      continuation.onTermination = { @Sendable _ in
-        cancellable.cancel()
-      }
     }
   }
 }
