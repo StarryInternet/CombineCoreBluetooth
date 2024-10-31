@@ -19,13 +19,13 @@ concurrency:
   cancel-in-progress: true
   
 env:
-  DEVELOPER_DIR: "/Applications/Xcode_15.2.app/Contents/Developer"
+  DEVELOPER_DIR: "/Applications/Xcode_16.0.app/Contents/Developer"
 
 jobs:
   build-mac:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Update Tools
         run: gem update cocoapods
       - name: Print Versions
@@ -35,17 +35,17 @@ jobs:
           pod --version
       - name: Build
         run: swift build --build-tests
-      - name: Run tests
+      - name: Test
         run: swift test --skip-build
-      - name: Pod lint
-        run: pod lib lint
       - name: Verify Carthage
         run: carthage build --no-skip-current --verbose --use-xcframeworks --platform macOS
+      - name: Pod lint
+        run: pod lib lint
 
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test
         run: |
           set -o pipefail && xcodebuild \
@@ -58,9 +58,9 @@ jobs:
            test | xcpretty -c
 
   build-tvos:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test
         run: |
           set -o pipefail && xcodebuild \
@@ -73,9 +73,9 @@ jobs:
            test | xcpretty -c
 
   build-watchos:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test
         run: |
           set -o pipefail && xcodebuild \
@@ -88,9 +88,9 @@ jobs:
            test | xcpretty -c
   
   build-visionos:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test
         run: |
           set -o pipefail && xcodebuild \
