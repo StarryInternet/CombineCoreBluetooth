@@ -9,9 +9,11 @@ CombineCoreBluetooth is a library that bridges Apple's `CoreBluetooth` framework
 
 ## Requirements:
 
-- iOS 13, tvOS 13, macOS 10.15, or watchOS 6
-- Xcode 13.3 or higher
-- Swift 5.6 or higher
+- iOS 13, tvOS 13, macOS 11, or watchOS 6
+- Xcode 15 or higher
+- Swift 5.9 or higher
+
+(If you are using carthage, or if you wish to open the project to play with the demo app, you will need to use Xcode 16)
 
 ## Installation
 
@@ -20,7 +22,7 @@ CombineCoreBluetooth is a library that bridges Apple's `CoreBluetooth` framework
 Add this line to your dependencies list in your Package.swift:
 
 ```swift
-.package(name: "CombineCoreBluetooth", url: "https://github.com/StarryInternet/CombineCoreBluetooth.git", from: "0.3.0"),
+.package(name: "CombineCoreBluetooth", url: "https://github.com/StarryInternet/CombineCoreBluetooth.git", from: "0.8.0"),
 ```
 
 ### Cocoapods
