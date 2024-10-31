@@ -263,43 +263,43 @@ extension Publisher {
     } receiveValue: { output in
       value = output
     }
-
+    
     _ = XCTWaiter.wait(for: [exp], timeout: 1)
     sub.cancel()
-
+    
     if let error = error {
       throw error
     } else {
       return value
     }
   }
-
-  func firstValue() async throws -> Output? {
-    try await values.first(where: { _ in true })
-  }
-
+  
   func neverComplete() -> AnyPublisher<Output, Failure> {
     append(Empty(completeImmediately: false))
       .eraseToAnyPublisher()
-    }
+  }
+}
 
-  private var values: AsyncThrowingStream<Output, Error> {
-    AsyncThrowingStream { continuation in
-      let cancellable: AnyCancellable = sink(
+extension Publisher where Output: Sendable {
+  func firstValue() async throws -> Output {
+    try await withCheckedThrowingContinuation { c in
+      var cancellation: AnyCancellable?
+      cancellation = self.first().sink(
         receiveCompletion: { completion in
-          switch completion {
-          case .finished:
-            continuation.finish()
-          case .failure(let error):
-            continuation.finish(throwing: error)
+          if case let .failure(error) = completion {
+            c.resume(throwing: error)
+            cancellation = nil
+          } else {
+            if cancellation != nil {
+              c.resume(throwing: CancellationError())
+            }
+            cancellation = nil
           }
         }, receiveValue: { value in
-          continuation.yield(value)
+          c.resume(returning: value)
+          cancellation = nil
         }
       )
-      continuation.onTermination = { @Sendable _ in
-        cancellable.cancel()
-      }
     }
   }
 }
